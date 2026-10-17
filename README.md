@@ -121,7 +121,7 @@ Each row's `verified_at` shows how fresh it is. On the website, rows not re-veri
 - **Official pages, static HTML:** OpenAI, Anthropic, DeepSeek (English and Chinese pages).
 - **Official pages, headless Chrome:** Google, xAI, Alibaba Model Studio, Kimi, Zhipu, MiniMax, Baidu Qianfan, Tencent Hunyuan, Volcengine Ark.
 - **Cross-check:** official rows are compared against [models.dev](https://models.dev) open data. A gap above 15 % is flagged, and the official page always wins. The cross-check result is not in the export yet.
-- **FX:** `https://open.er-api.com/v6/latest/USD`.
+- **FX:** `https://open.er-api.com/v6/latest/USD`. [Rates By Exchange Rate API](https://www.exchangerate-api.com) (attribution required by the provider's free API).
 - **China-usability flags:** checked per channel against the provider's own docs and terms, and each flag links its source. The methodology page documents one mainland network test (Shanghai, China Unicom, 2026-10-17). Other ISPs were not tested.
 - Prices without a trustworthy source are not published. For corrections, email `data@apiprice.app` with an official link.
 
