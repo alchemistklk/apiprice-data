@@ -1,6 +1,6 @@
 # apiprice.app LLM API Prices
 
-> **Draft, not yet published.** GitHub repository: `alchemistklk/apiprice-data` (private until approved). No Hugging Face repository exists; the `apiprice/llm-api-prices` id below is a proposal. Statistics were computed from the live export on **2026-10-17** (`generated_at` 2026-10-17T04:34:55.165Z UTC = 12:34 UTC+8), **filtered to official channels only** (48 of 113 live rows). License: **CC BY 4.0** (decided).
+> GitHub repository: [`alchemistklk/apiprice-data`](https://github.com/alchemistklk/apiprice-data) (public). No Hugging Face repository exists yet; the `apiprice/llm-api-prices` id below is a proposal only. Statistics were computed from the live export on **2026-10-17** (`generated_at` 2026-10-17T07:30:37.165Z UTC = 15:30 UTC+8), **filtered to official channels only** (48 of 113 live rows). License: **CC BY 4.0**.
 
 A bilingual (English / 中文) dataset of large-language-model API prices, published by [apiprice.app](https://apiprice.app). Each row is **one model on one official purchase channel**: the provider's official China site (CNY) or the provider's official international site (USD). **v1 does not include third-party aggregators** (no OpenRouter or reseller rows). Every row carries the URL it was read from (`source_url`) and when it was read (`verified_at`). Each row also has per-channel flags for whether the channel is usable from mainland China (direct access, Alipay, real-name ID, overseas card), and each flag has its own source.
 
@@ -49,7 +49,7 @@ The model list is curated (`data/catalog.json` in the site source). It is not ev
 
 ## Fields
 
-The columns of `prices.csv` match the fields of each object in `prices.json → prices[]` (30 columns, schema 1.1.0). The live site export has 40 columns (the extra 10 are OpenRouter-only: `or_*`, `quantized_min_*`, `licensed_cloud_*`) and still includes aggregator rows. This repository drops those columns and keeps the 48 official rows. Machine-readable schema: `schema/prices.schema.json`.
+The columns of `prices.csv` match the fields of each object in `prices.json → prices[]` (37 columns, schema 1.2.0). The live site export has 47 columns (the extra 10 are OpenRouter-only: `or_*`, `quantized_min_*`, `licensed_cloud_*`) and still includes aggregator rows. This repository drops those columns and keeps the 48 official rows. Machine-readable schema: `schema/prices.schema.json`.
 
 | Field | Type | Unit / allowed values | Example | Notes |
 |---|---|---|---|---|
@@ -68,6 +68,13 @@ The columns of `prices.csv` match the fields of each object in `prices.json → 
 | `off_peak_cached_per_1m` | number \| null | currency per 1M | `0.02` | Off-peak cached input price. |
 | `off_peak_hours` | string \| null | free text | `Peak 01:00-04:00 and 06:00-10:00 UTC …` | Peak / off-peak window as published, with source. |
 | `tier_notes` | string \| null | free text | `Cache write $5/MTok; batch -50%` | Tiers, cache-write prices, batch discounts, time-limited promotions. Null on 6 rows. |
+| `retired` | boolean | `true`, `false` | `false` | `true` if this model name is retired, deprecated, or listed with an OpenRouter-only expiration. The row is kept but must not be ranked as cheapest. 2 of 48 official rows are `true` in this snapshot. |
+| `retired_status` | string \| null | `retired`, `deprecated`, `openrouter_expiration`, null | `deprecated` | `retired` = vendor retired the name (may be served/billed as another model); `deprecated` = vendor announced a shutdown date; `openrouter_expiration` = only OpenRouter lists an expiration (no vendor notice). null when `retired=false`. |
+| `retired_shutdown` | string \| null | date `YYYY-MM-DD` | `2026-11-18` | Announced shutdown / expiration date when known. |
+| `retired_replacement` | string \| null | apiprice.app slug | `minimax-m3` | Recommended replacement `model_id` when the vendor names one. |
+| `retired_note` | string \| null | free text | `MiniMax: M2.5/M2.7 close…` | Free-text note about retirement / deprecation. |
+| `retired_source_url` | string \| null | URL | `https://platform.minimaxi.com/docs/guides/models-intro` | Official (or OpenRouter, for `openrouter_expiration`) source for the status. |
+| `retired_verified_at` | string \| null | ISO 8601 timestamp | `2026-10-17T12:43:54+08:00` | When the retirement status was checked. |
 | `verified` | boolean | `true` | `true` | `true` on all 48 official rows in this snapshot. |
 | `verified_at` | string | ISO 8601 UTC timestamp | `2026-10-17T03:45:56.903Z` | When the price was read from `source_url`. |
 | `check_method` | string | `auto`, `manual` | `auto` | `auto` = fetched by script (static HTML/API); `manual` = read by a person with a headless browser. 11 auto / 37 manual. |
@@ -90,13 +97,13 @@ Top-level keys of `prices.json`:
 |---|---|
 | `license` | `CC BY 4.0` |
 | `source` | `https://apiprice.app` |
-| `schema_version` | `1.1.0` |
+| `schema_version` | `1.2.0` |
 | `usd_cny` | 6.698464 |
 | `fx_verified_at` | FX check time |
 | `unit` | `per 1M tokens` |
 | `generated_at` | export time |
 | `count` | row count |
-| `notes` | definitions of null, off-peak, stale, check_method |
+| `notes` | definitions of retired, null, off-peak, stale, check_method |
 | `prices` | the rows |
 
 This repository's `data/prices.json` also adds `license_url`, `source_export`, `dataset` and `dataset_scope`, and drops the OpenRouter note.
@@ -105,7 +112,7 @@ The CSV does **not** carry the FX rate or `generated_at`. Take them from the JSO
 
 ## Update frequency
 
-The site describes itself as updated daily, and the methodology page says the FX rate is refreshed daily. The update job (`npm run update`) re-reads the official pages (and, for the live site only, aggregator APIs), records diffs, and the site rebuild re-exports these files. The dataset sync should keep only official-channel rows. Change history starts on **2026-10-17**, so there is no long history yet. *We did not verify from the repository that the update runs on an automatic daily schedule.*
+The site describes itself as updated daily, and the methodology page says the FX rate is refreshed daily. The update job (`npm run update`) re-reads the official pages (and, for the live site only, aggregator APIs), records diffs, and the site rebuild re-exports these files. After each site deploy, `scripts/sync.mjs` refreshes this public repository with official-channel rows only (see `scripts/SYNC.md`). Change history starts on **2026-10-17**, so there is no long history yet.
 
 Each row's `verified_at` shows how fresh it is. On the website, rows not re-verified for 14 days are greyed out.
 
@@ -135,6 +142,7 @@ The live site also tracks OpenRouter list prices; those rows are **excluded from
 - **Modality.** Prices are for text input, and usually image and video input. Audio input is often priced differently (e.g. some Gemini models) and has no column.
 - **Promotions vs list price.** Rows normally show the list price. When a page also shows a time-limited discount (e.g. a Qwen model shown "20 % off for a limited time"), `tier_notes` records it. Treat each row as the price we judged to be in force, and check `source_url` for current promotions.
 - **No third-party aggregators.** v1 includes only `official_cn` and `official_intl`. OpenRouter and other reseller / relay prices are not in this dataset, even though the live site still shows them. Counts above are filtered accordingly (48 of 113 live rows on 2026-10-17).
+- **Retired / deprecated names.** Rows with `retired=true` stay in the dataset with their last verified price. Do not treat them as the current cheapest option. In this snapshot: `gemini-3.1-flash-lite` (official_intl, deprecated, shutdown 2027-05-07) and `minimax-m2.7` (official_cn, deprecated, shutdown 2026-11-18).
 - **Currency and FX.** `official_cn` rows are in CNY and are **not** converted. If you convert, use `usd_cny` from the same snapshot and say so. The site's "blended" price (0.75 × input + 0.25 × output, compared in USD) is not a column.
 - **Region.** Chinese cloud prices can depend on the region (e.g. Alibaba "华北2（北京）"). The `region` column records it where known (`cn-beijing` on the 5 Qwen rows; null elsewhere).
 - **Free tiers and credits.** Free models, trial credits and promotions are not per-token prices and are not in this table. See <https://apiprice.app/en/free/> and <https://apiprice.app/en/free-credits/>.

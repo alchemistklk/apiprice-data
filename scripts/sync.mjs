@@ -16,12 +16,15 @@ const SRC = srcIdx >= 0 ? args[srcIdx + 1] : (process.env.APIPRICE_SRC || 'https
 const CHECK = args.includes('--check');
 
 const OFFICIAL = new Set(['official_cn', 'official_intl']);
-// Dataset v1 fields (schema 1.1.0 export minus OpenRouter-only fields), in order.
+// Dataset fields (schema 1.2.0 export minus OpenRouter-only fields), in order.
 export const FIELDS = [
   'model_id', 'model', 'provider', 'provider_model_id', 'channel', 'region', 'currency',
   'input_per_1m', 'output_per_1m', 'cached_per_1m',
   'off_peak_input_per_1m', 'off_peak_output_per_1m', 'off_peak_cached_per_1m', 'off_peak_hours',
-  'tier_notes', 'verified', 'verified_at', 'check_method', 'stale', 'fetch_failed_reason', 'fetch_failed_at',
+  'tier_notes',
+  'retired', 'retired_status', 'retired_shutdown', 'retired_replacement', 'retired_note',
+  'retired_source_url', 'retired_verified_at',
+  'verified', 'verified_at', 'check_method', 'stale', 'fetch_failed_reason', 'fetch_failed_at',
   'source_url', 'access_direct', 'access_alipay', 'access_real_name', 'access_overseas_card',
   'access_region_restricted', 'access_region_source', 'access_source_url', 'access_verified_at',
 ];
@@ -38,7 +41,7 @@ async function load(src) {
 
 const die = (m) => { console.error('sync: ' + m); process.exit(2); };
 const live = await load(SRC);
-if (live.schema_version !== '1.1.0') die(`unexpected schema_version ${live.schema_version} (expected 1.1.0); update FIELDS/schema first`);
+if (live.schema_version !== '1.2.0') die(`unexpected schema_version ${live.schema_version} (expected 1.2.0); update FIELDS/schema first`);
 if (!Array.isArray(live.prices) || live.prices.length !== live.count) die('count mismatch in source export');
 const srcKeys = new Set(live.prices.flatMap((p) => Object.keys(p)));
 const missing = FIELDS.filter((f) => !srcKeys.has(f));

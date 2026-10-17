@@ -1,6 +1,6 @@
 # apiprice.app 大模型 API 价格数据集
 
-> **草稿，尚未发布。** GitHub 仓库：`alchemistklk/apiprice-data`（获批前保持私有）。Hugging Face 仓库尚不存在；下文的 `apiprice/llm-api-prices` 只是建议名。统计数字按 **2026-10-17** 的线上导出实际计算（`generated_at` 为 2026-10-17T04:34:55.165Z，即 UTC+8 12:34），并**只保留官网渠道**（113 行里筛出 48 行）。许可证：**CC BY 4.0**（已定）。
+> GitHub 仓库：[`alchemistklk/apiprice-data`](https://github.com/alchemistklk/apiprice-data)（公开）。Hugging Face 仓库尚不存在；下文的 `apiprice/llm-api-prices` 只是建议名。统计数字按 **2026-10-17** 的线上导出实际计算（`generated_at` 为 2026-10-17T07:30:37.165Z，即 UTC+8 15:30），并**只保留官网渠道**（113 行里筛出 48 行）。许可证：**CC BY 4.0**。
 
 这是 [apiprice.app](https://apiprice.app) 发布的中英双语大模型 API 价格数据集。每一行是**一个模型在一个官方购买渠道上的价格**：厂商国内官网（人民币）或厂商国际官网（美元）。**第一版不含第三方聚合渠道**（不含 OpenRouter，也不含中转站）。每行都带价格出处（`source_url`）和核实时间（`verified_at`）。每行还按渠道标了国内可用性：能否直连、能否用支付宝、是否要实名、是否要海外卡，每一项都有自己的来源。
 
@@ -49,7 +49,7 @@
 
 ## 字段
 
-`prices.csv` 的列和 `prices.json → prices[]` 里每个对象的字段一一对应（30 列，schema 1.1.0）。线上站点导出仍是 40 列（多出来的 10 列是 OpenRouter 专用：`or_*`、`quantized_min_*`、`licensed_cloud_*`），且还含聚合渠道行。本仓库去掉那 10 列，只保留 48 行官网价格。机器可读 schema：`schema/prices.schema.json`。
+`prices.csv` 的列和 `prices.json → prices[]` 里每个对象的字段一一对应（37 列，schema 1.2.0）。线上站点导出仍是 47 列（多出来的 10 列是 OpenRouter 专用：`or_*`、`quantized_min_*`、`licensed_cloud_*`），且还含聚合渠道行。本仓库去掉那 10 列，只保留 48 行官网价格。机器可读 schema：`schema/prices.schema.json`。
 
 | 字段 | 类型 | 单位 / 取值 | 示例 | 说明 |
 |---|---|---|---|---|
@@ -68,6 +68,13 @@
 | `off_peak_cached_per_1m` | number \| null | 每百万 token | `0.02` | 闲时缓存命中价 |
 | `off_peak_hours` | string \| null | 自由文本 | `Peak 01:00-04:00 and 06:00-10:00 UTC …` | 高峰 / 闲时窗口（按官网原文），并附来源 |
 | `tier_notes` | string \| null | 自由文本 | `Cache write $5/MTok; batch -50%` | 分档、缓存写入价、批量折扣、限时促销。6 行为 null |
+| `retired` | boolean | `true`、`false` | `false` | 该模型名已退役、已弃用，或仅 OpenRouter 标明到期时为 `true`。行会保留，但不得当作当前最低价排名。本快照 48 行官网价格里有 2 行为 `true`。 |
+| `retired_status` | string \| null | `retired`、`deprecated`、`openrouter_expiration`、null | `deprecated` | `retired` = 厂商退役了该名称（可能仍按另一型号计费）；`deprecated` = 厂商已公告下线日期；`openrouter_expiration` = 只有 OpenRouter 标了到期（无厂商公告）。`retired=false` 时为 null。 |
+| `retired_shutdown` | string \| null | 日期 `YYYY-MM-DD` | `2026-11-18` | 已知的下线 / 到期日期 |
+| `retired_replacement` | string \| null | apiprice.app 内部标识 | `minimax-m3` | 厂商建议的替代型号 `model_id`（有则填写） |
+| `retired_note` | string \| null | 自由文本 | `MiniMax: M2.5/M2.7 close…` | 退役 / 弃用说明 |
+| `retired_source_url` | string \| null | URL | `https://platform.minimaxi.com/docs/guides/models-intro` | 退役状态的来源（`openrouter_expiration` 时可能是 OpenRouter） |
+| `retired_verified_at` | string \| null | ISO 8601 时间 | `2026-10-17T12:43:54+08:00` | 退役状态的核实时间 |
 | `verified` | boolean | `true` | `true` | 本快照的 48 行官网价格都是 `true` |
 | `verified_at` | string | ISO 8601 UTC 时间 | `2026-10-17T03:45:56.903Z` | 从 `source_url` 读到这个价格的时间 |
 | `check_method` | string | `auto`、`manual` | `auto` | `auto` = 脚本抓取（静态 HTML/API）；`manual` = 人工用无头浏览器读。11 行 auto / 37 行 manual |
@@ -90,13 +97,13 @@
 |---|---|
 | `license` | `CC BY 4.0` |
 | `source` | `https://apiprice.app` |
-| `schema_version` | `1.1.0` |
+| `schema_version` | `1.2.0` |
 | `usd_cny` | 6.698464 |
 | `fx_verified_at` | 汇率核实时间 |
 | `unit` | `per 1M tokens` |
 | `generated_at` | 导出时间 |
 | `count` | 行数 |
-| `notes` | null、闲时价、stale、check_method 的定义 |
+| `notes` | retired、null、闲时价、stale、check_method 的定义 |
 | `prices` | 数据行 |
 
 本仓库的 `data/prices.json` 还会加上 `license_url`、`source_export`、`dataset`、`dataset_scope`，并去掉 OpenRouter 相关说明。
@@ -105,7 +112,7 @@ CSV 里**没有**汇率和 `generated_at`，需要时从 JSON 取。
 
 ## 更新频率
 
-网站自称每日更新，方法论页也写着汇率每天刷新。更新脚本（`npm run update`）会重新读取各家官网（线上站点还会读聚合渠道 API），并记录差异；网站重新构建时导出这些文件。同步到数据集时只保留官网渠道行。变动记录从 **2026-10-17** 开始，还没有长期历史。*我们没有在仓库里核实更新任务是否按自动日更日程运行。*
+网站自称每日更新，方法论页也写着汇率每天刷新。更新脚本（`npm run update`）会重新读取各家官网（线上站点还会读聚合渠道 API），并记录差异；网站重新构建时导出这些文件。每次站点部署后，用 `scripts/sync.mjs` 把官网渠道行同步到本公开仓库（见 `scripts/SYNC.md`）。变动记录从 **2026-10-17** 开始，还没有长期历史。
 
 每行有多新，看它的 `verified_at`。网站上超过 14 天没重新核实的行会显示成灰色。
 
@@ -135,6 +142,7 @@ CSV 里**没有**汇率和 `generated_at`，需要时从 JSON 取。
 - **模态**：价格按文本输入算，通常也包括图片和视频。音频输入经常另外定价（如部分 Gemini 模型），没有对应的列。
 - **促销价和刊例价**：一般列刊例价。页面上另有限时折扣时（例如某个通义千问模型显示"限时 8 折"），`tier_notes` 会记下来。每行应理解为"我们判断当时生效的价格"，最新促销请看 `source_url`。
 - **不含第三方聚合渠道**：第一版只含 `official_cn` 和 `official_intl`。OpenRouter 以及其他中转站 / 代理商的价格都不在本数据集里（线上站点仍会展示）。上面的统计是过滤后的结果（2026-10-17 线上 113 行里筛出 48 行）。
+- **退役 / 弃用型号**：`retired=true` 的行仍保留上次核实的价格，不要把它们当成当前最低价。本快照：`gemini-3.1-flash-lite`（official_intl，deprecated，下线 2027-05-07）和 `minimax-m2.7`（official_cn，deprecated，下线 2026-11-18）。
 - **币种和汇率**：国内官网行是人民币，**没有换算**。要换算的话，请用同一份快照里的 `usd_cny`，并注明换算过。网站上的"综合价"（0.75 × 输入 + 0.25 × 输出，按美元比较）不在数据里。
 - **地域**：国内云厂商的价格可能跟地域有关（如阿里云"华北2（北京）"）。已知时写在 `region` 列（5 行通义千问为 `cn-beijing`；其余为 null）。
 - **免费额度**：免费模型、试用额度和优惠活动不是按 token 计价，不在这张表里。见 <https://apiprice.app/zh/free/> 和 <https://apiprice.app/zh/free-credits/>。

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/alchemistklk/apiprice-data/schema/prices.schema.json",
-  "title": "apiprice-data prices.json (schema 1.1.0, official channels only)",
+  "title": "apiprice-data prices.json (schema 1.2.0, official channels only)",
   "type": "object",
   "required": [
     "license",
@@ -34,7 +34,7 @@
       "type": "string"
     },
     "schema_version": {
-      "const": "1.1.0"
+      "const": "1.2.0"
     },
     "usd_cny": {
       "type": "number",
@@ -78,6 +78,13 @@
           "off_peak_cached_per_1m",
           "off_peak_hours",
           "tier_notes",
+          "retired",
+          "retired_status",
+          "retired_shutdown",
+          "retired_replacement",
+          "retired_note",
+          "retired_source_url",
+          "retired_verified_at",
           "verified",
           "verified_at",
           "check_method",
@@ -190,6 +197,59 @@
               "null"
             ],
             "description": "Free-text notes: tiers, cache-write prices, batch discounts, time-limited promotions, region."
+          },
+          "retired": {
+            "type": "boolean",
+            "description": "true if this model name is retired, deprecated, or listed with an OpenRouter-only expiration. The row is kept but must not be ranked as cheapest."
+          },
+          "retired_status": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "retired",
+              "deprecated",
+              "openrouter_expiration",
+              null
+            ],
+            "description": "retired = vendor retired the name (may be served/billed as another model); deprecated = vendor announced a shutdown date; openrouter_expiration = only OpenRouter lists an expiration (no vendor notice). null when retired=false."
+          },
+          "retired_shutdown": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Announced shutdown / expiration date (YYYY-MM-DD) when known; null otherwise.",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "retired_replacement": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Recommended replacement model_id (apiprice slug) when the vendor names one; null otherwise."
+          },
+          "retired_note": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Free-text note about retirement / deprecation / expiration."
+          },
+          "retired_source_url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Official (or OpenRouter, for openrouter_expiration) source for the retirement status."
+          },
+          "retired_verified_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "ISO 8601 time the retirement status was checked."
           },
           "verified": {
             "type": "boolean",
