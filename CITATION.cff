@@ -1,0 +1,27 @@
+# Citation File Format 1.2.0: https://citation-file-format.github.io/
+# Put this file in the GitHub repo root. GitHub then shows "Cite this repository" with APA and BibTeX.
+# Update `version` and `date-released` on every snapshot release (scripts/sync.mjs rewrites these two lines).
+cff-version: 1.2.0
+message: "If you use this dataset, please cite it as below and link to https://apiprice.app."
+type: dataset
+title: "apiprice.app LLM API Prices"
+abstract: >-
+  Daily snapshot of large-language-model API prices per 1M tokens from
+  official China sites (CNY) and official international sites (USD)
+  only (v1 excludes third-party aggregators such as OpenRouter), with a
+  source URL and verification time on every row and per-channel
+  mainland-China usability flags.
+authors:
+  - name: "apiprice.app"
+    website: "https://apiprice.app"
+    email: "data@apiprice.app"
+version: "2026-10-17"
+date-released: "2026-10-17"
+license: CC-BY-4.0
+url: "https://apiprice.app"
+repository-code: "https://github.com/alchemistklk/apiprice-data"
+keywords:
+  - LLM
+  - API pricing
+  - China
+  - dataset

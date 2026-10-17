@@ -1,0 +1,298 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/alchemistklk/apiprice-data/schema/prices.schema.json",
+  "title": "apiprice-data prices.json (schema 1.1.0, official channels only)",
+  "type": "object",
+  "required": [
+    "license",
+    "source",
+    "schema_version",
+    "usd_cny",
+    "fx_verified_at",
+    "unit",
+    "generated_at",
+    "count",
+    "prices"
+  ],
+  "properties": {
+    "license": {
+      "const": "CC BY 4.0"
+    },
+    "license_url": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    },
+    "source_export": {
+      "type": "string"
+    },
+    "dataset": {
+      "type": "string"
+    },
+    "dataset_scope": {
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.1.0"
+    },
+    "usd_cny": {
+      "type": "number",
+      "description": "USD→CNY rate of the same snapshot (for optional conversion)."
+    },
+    "fx_verified_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "unit": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "count": {
+      "type": "integer"
+    },
+    "notes": {
+      "type": "object"
+    },
+    "prices": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "model_id",
+          "model",
+          "provider",
+          "provider_model_id",
+          "channel",
+          "region",
+          "currency",
+          "input_per_1m",
+          "output_per_1m",
+          "cached_per_1m",
+          "off_peak_input_per_1m",
+          "off_peak_output_per_1m",
+          "off_peak_cached_per_1m",
+          "off_peak_hours",
+          "tier_notes",
+          "verified",
+          "verified_at",
+          "check_method",
+          "stale",
+          "fetch_failed_reason",
+          "fetch_failed_at",
+          "source_url",
+          "access_direct",
+          "access_alipay",
+          "access_real_name",
+          "access_overseas_card",
+          "access_region_restricted",
+          "access_region_source",
+          "access_source_url",
+          "access_verified_at"
+        ],
+        "properties": {
+          "model_id": {
+            "type": "string",
+            "description": "apiprice.app model slug (stable key). Not necessarily the provider API model string."
+          },
+          "model": {
+            "type": "string",
+            "description": "Display name."
+          },
+          "provider": {
+            "type": "string",
+            "description": "Provider id, e.g. openai, deepseek, qwen."
+          },
+          "provider_model_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Model string used with the provider API. null = not recorded (not guessed)."
+          },
+          "channel": {
+            "enum": [
+              "official_cn",
+              "official_intl"
+            ],
+            "description": "official_cn = provider China site (CNY); official_intl = international site (USD)."
+          },
+          "region": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Cloud region the price applies to, e.g. cn-beijing; null = not region-specific / not recorded."
+          },
+          "currency": {
+            "enum": [
+              "CNY",
+              "USD"
+            ],
+            "description": "Native currency of the channel; not converted."
+          },
+          "input_per_1m": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Price per 1M uncached input tokens (lowest tier; peak price where time-of-day pricing exists)."
+          },
+          "output_per_1m": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Price per 1M output tokens (same tier rules)."
+          },
+          "cached_per_1m": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "description": "Price per 1M cached input tokens (cache read/hit). null = not published/recorded."
+          },
+          "off_peak_input_per_1m": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "description": "Off-peak input price; only for channels whose official page publishes off-peak prices, else null."
+          },
+          "off_peak_output_per_1m": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "description": "Off-peak output price; else null."
+          },
+          "off_peak_cached_per_1m": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "description": "Off-peak cached input price; else null."
+          },
+          "off_peak_hours": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Off-peak window as published by the provider; else null."
+          },
+          "tier_notes": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Free-text notes: tiers, cache-write prices, batch discounts, time-limited promotions, region."
+          },
+          "verified": {
+            "type": "boolean",
+            "description": "Price was read from source_url."
+          },
+          "verified_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 UTC time the price was read."
+          },
+          "check_method": {
+            "enum": [
+              "auto",
+              "manual"
+            ],
+            "description": "auto = fetched by script (static HTML/API); manual = read by a person with a headless browser."
+          },
+          "stale": {
+            "type": "boolean",
+            "description": "true if verified_at is older than 7 days, the last fetch failed, or an announced price change took effect without re-verification."
+          },
+          "fetch_failed_reason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Reason of the last failed fetch (last good price kept); null if none."
+          },
+          "fetch_failed_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Time of the last failed fetch; null if none."
+          },
+          "source_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Official pricing page the price was read from."
+          },
+          "access_direct": {
+            "enum": [
+              "yes",
+              "no",
+              null
+            ],
+            "description": "Usable from mainland China without a proxy. null = unknown/unverified (shown as ? on apiprice.app), not \"no\"."
+          },
+          "access_alipay": {
+            "enum": [
+              "yes",
+              "no",
+              null
+            ],
+            "description": "Alipay accepted. null = unknown/unverified (shown as ? on apiprice.app), not \"no\"."
+          },
+          "access_real_name": {
+            "enum": [
+              "yes",
+              "no",
+              null
+            ],
+            "description": "Real-name / ID verification required. null = unknown/unverified (shown as ? on apiprice.app), not \"no\"."
+          },
+          "access_overseas_card": {
+            "enum": [
+              "yes",
+              "no",
+              null
+            ],
+            "description": "Overseas card required. null = unknown/unverified (shown as ? on apiprice.app), not \"no\"."
+          },
+          "access_region_restricted": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Space-separated ISO 3166 codes excluded by the provider supported-regions list; null = not recorded."
+          },
+          "access_region_source": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Source URL for access_region_restricted."
+          },
+          "access_source_url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Source URL for the payment / ID flags."
+          },
+          "access_verified_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Date (YYYY-MM-DD) the access flags were checked.",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          }
+        }
+      }
+    }
+  }
+}
