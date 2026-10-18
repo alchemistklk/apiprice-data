@@ -9,7 +9,7 @@
  "usd_cny": 6.698464,
  "fx_verified_at": "2026-10-17T04:20:47.592Z",
  "unit": "per 1M tokens",
- "generated_at": "2026-10-18T12:18:47.237Z",
+ "generated_at": "2026-10-18T12:21:02.484Z",
  "count": 50,
  "notes": {
   "retired": "retired=true: retired_status=retired (vendor retired the name; may be served/billed as another model), deprecated (vendor announced a shutdown date) or openrouter_expiration (only OpenRouter lists an expiration date; no vendor notice). The row is kept but must not be ranked as cheapest",
@@ -1282,7 +1282,7 @@
    "off_peak_output_per_1m": null,
    "off_peak_cached_per_1m": null,
    "off_peak_hours": null,
-   "tier_notes": "华北2（北京），0<Token≤256K；主价格为原价。官方页标注「限时8折」（约 ¥1.6 / ¥6.4），未写截止日期（页面称活动优惠以百炼控制台为准）",
+   "tier_notes": "华北2（北京），0<Token≤256K；主价格为原价。官方页标注「限时8折」（约 ¥1.6 / ¥6.4），未写截止日期（页面称活动优惠以 Model Studio 控制台为准）",
    "retired": false,
    "retired_status": null,
    "retired_shutdown": null,
