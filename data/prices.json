@@ -9,7 +9,7 @@
  "usd_cny": 6.698464,
  "fx_verified_at": "2026-10-17T04:20:47.592Z",
  "unit": "per 1M tokens",
- "generated_at": "2026-10-18T03:34:21.626Z",
+ "generated_at": "2026-10-18T03:51:55.902Z",
  "count": 50,
  "notes": {
   "retired": "retired=true: retired_status=retired (vendor retired the name; may be served/billed as another model), deprecated (vendor announced a shutdown date) or openrouter_expiration (only OpenRouter lists an expiration date; no vendor notice). The row is kept but must not be ranked as cheapest",
