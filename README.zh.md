@@ -1,222 +1,220 @@
 # apiprice.app 大模型 API 价格数据集
 
-> GitHub 仓库：[`alchemistklk/apiprice-data`](https://github.com/alchemistklk/apiprice-data)（公开）。Hugging Face 仓库尚不存在；下文的 `apiprice/llm-api-prices` 只是建议名。统计数字按 **2026-10-17** 的线上导出实际计算（`generated_at` 为 2026-10-17T07:30:37.165Z，即 UTC+8 15:30），并**只保留官网渠道**（113 行里筛出 48 行）。许可证：**CC BY 4.0**。
+大模型 API 每百万 tokens 的价格，一行是「一个模型 × 一个购买渠道」。只收录各厂商的官方国内站（人民币）和官方国际站（美元）。**本数据集只含官方渠道价格，聚合商和中转商的价格（如 OpenRouter）不在其中。**
 
-这是 [apiprice.app](https://apiprice.app) 发布的中英双语大模型 API 价格数据集。每一行是**一个模型在一个官方购买渠道上的价格**：厂商国内官网（人民币）或厂商国际官网（美元）。**第一版不含第三方聚合渠道**（不含 OpenRouter，也不含中转站）。每行都带价格出处（`source_url`）和核实时间（`verified_at`）。每行还按渠道标了国内可用性：能否直连、能否用支付宝、是否要实名、是否要海外卡，每一项都有自己的来源。
+每一行都记录：
 
-- 网站：<https://apiprice.app/zh/> · English: <https://apiprice.app/en/>
-- 数据方法论：<https://apiprice.app/zh/methodology/>
-- 线上文件：<https://apiprice.app/data/prices.json> · <https://apiprice.app/data/prices.csv> · <https://apiprice.app/llms.txt> · <https://apiprice.app/llms-full.txt>
+- 价格是从哪个页面读到的（`source_url`），什么时候读的（`verified_at`）；
+- 这个渠道在中国大陆能不能用：直连、支付宝、实名、海外卡，每一项都附来源。
 
-## 覆盖范围（截至 2026-10-17）
+发布方：[apiprice.app](https://apiprice.app)。许可：**CC BY 4.0**。English: [README.md](README.md)。
 
-**第一版范围：** 只含官网渠道（`official_intl`、`official_cn`）。**不含**第三方聚合渠道（含 OpenRouter）。下表数字是从当天线上导出过滤后实际算出来的。
+**本快照截至 2026-10-19（UTC+8）：**
 
-| | 数量 |
+- 50 行
+- 46 个模型
+- 12 家厂商
+- schema 1.3.0
+
+链接：
+
+- 网站：<https://apiprice.app/zh/> · English：<https://apiprice.app/en/>
+- 取价方法：<https://apiprice.app/zh/methodology/>
+- 网站上的实时文件（含聚合商渠道，本数据集不收）：<https://apiprice.app/data/prices.json> · <https://apiprice.app/data/prices.csv> · <https://apiprice.app/data/changes.json>
+
+## 文件
+
+| 路径 | 内容 |
 |---|---|
-| 价格记录（模型 × 渠道） | **48** |
-| 模型 | **45** |
-| 厂商 | **12** |
-| 按渠道 | `official_intl` 25 · `official_cn` 23 |
-| 按币种 | USD 25 · CNY 23 |
+| `data/prices.json` | 最新快照：文件头（许可、schema 版本、汇率、导出时间）加 `prices[]` |
+| `data/prices.csv` | 和 `prices.json → prices[]` 行、列顺序都相同。CSV 没有文件头信息，汇率和导出时间要看 JSON |
+| `schema/prices.schema.json` | `data/prices.json` 的 JSON Schema |
+| `scripts/sync.mjs` | 从网站实时导出重新生成 `data/`（Node ≥ 18，无依赖），见 `scripts/SYNC.md` |
+| `CITATION.cff` / `CITATION.bib` | 引用信息。GitHub 根据 `CITATION.cff` 显示「Cite this repository」 |
+| `LICENSE` | CC BY 4.0 法律文本 |
 
-| 厂商 | `provider` | 总部 | 模型数 | 国际官网 | 国内官网 |
-|---|---|---|---|---|---|
-| Google Gemini | `google` | 美国 | 9 | 9 | 0 |
-| xAI | `xai` | 美国 | 6 | 6 | 0 |
-| 阿里云百炼 通义千问 | `qwen` | 中国 | 5 | 0 | 5 |
-| Anthropic | `anthropic` | 美国 | 4 | 4 | 0 |
-| 百度 文心 ERNIE（千帆） | `baidu` | 中国 | 4 | 0 | 4 |
-| 字节跳动 豆包（火山方舟） | `bytedance` | 中国 | 3 | 0 | 3 |
-| 月之暗面 Kimi | `moonshot` | 中国 | 3 | 1 | 3 |
-| OpenAI | `openai` | 美国 | 3 | 3 | 0 |
-| 智谱 GLM（Z.ai） | `zhipu` | 中国 | 3 | 0 | 3 |
-| 深度求索 DeepSeek | `deepseek` | 中国 | 2 | 2 | 2 |
-| MiniMax 稀宇科技 | `minimax` | 中国 | 2 | 0 | 2 |
-| 腾讯混元 | `tencent` | 中国 | 1 | 0 | 1 |
+**价格历史**：在 git 里。每次同步是一个 commit（`data: sync YYYY-MM-DD …`），`git log -p data/prices.csv` 就能看到每次变化。仓库里没有单独的历史文件。网站的改价记录在 <https://apiprice.app/data/changes.json>。
 
-按渠道看模型覆盖：
+## 覆盖范围
 
-| 有价格的渠道 | 模型数 |
+- **渠道**：只有 `official_intl`（厂商国际站，美元）和 `official_cn`（厂商国内站，人民币）。OpenRouter 等聚合商和中转商不在范围内，`data/prices.json` 的 `dataset_scope` 也写明了这一点。
+- **厂商**：
+  - 只有国际站：Anthropic、OpenAI、Google Gemini、xAI。
+  - 两个站都有：DeepSeek、月之暗面 Kimi。
+  - 只有国内站：阿里云百炼（通义千问）、智谱 GLM、MiniMax、百度千帆（文心）、字节火山方舟（豆包）、腾讯混元。
+- **具体数量**：每个快照的具体数量见本页开头，也可以直接数 `data/prices.json`。
+- **模型列表**：人工挑选，不是每家的全部模型。
+
+## 怎么读一行
+
+- **单位**：所有 `*_per_1m` 都是每百万 tokens 的价格，币种看 `currency`。
+- **币种**：`official_cn` 是人民币，`official_intl` 是美元，都**不换算**。要跨币种比较，请用同一份 `prices.json` 里的 `usd_cny`，并注明是换算过的。
+- **输入价**：`input_per_1m` 是未命中缓存的价格。
+- **阶梯价**：按上下文长度或请求大小分档的，主价格取**最低一档**，其余档位写在 `tier_notes`。
+- **峰谷价**：按时段计价的（目前是 DeepSeek），主价格取**高峰价**；空闲时段价格在 `off_peak_*`，时段在 `off_peak_hours`。
+- **限时优惠**：官方渠道一律用**刊例价**，官方页上的限时折扣只写在 `tier_notes` 里。
+- **null**：表示*未知或未核实*，不是「否」，也不是「免费」。网站上显示为 `?`。
+- **已退役、弃用或已下架的模型**：`retired = true` 的行保留最后一次核实的价格，不能当成「最便宜」推荐。
+
+## 字段（schema 1.2.0）
+
+1.2.0 的字段。1.3.0 里这些字段全部保留、不变，新增字段见下文。
+
+| 字段 | 类型 | 取值 / 单位 | 含义 |
+|---|---|---|---|
+| `model_id` | string | apiprice.app 的 slug，如 `deepseek-v4-pro-0813` | 网站上的稳定主键，**不一定**是调用 API 时传的模型名 |
+| `model` | string | 显示名 | |
+| `provider` | string | 厂商 id，如 `deepseek` | 模型的开发方，不是销售方 |
+| `provider_model_id` | string \| null | | 厂商 API 里的模型名。暂未记录（null），不猜 |
+| `channel` | string | `official_cn`、`official_intl` | 价格适用的渠道 |
+| `region` | string \| null | 如 `cn-beijing` | 按地域定价的厂商（如阿里云百炼）才有，其他为 null |
+| `currency` | string | `CNY`、`USD` | 渠道本身的币种 |
+| `input_per_1m` | number | 币种 / 百万 tokens | 输入价（未命中缓存） |
+| `output_per_1m` | number | 币种 / 百万 tokens | 输出价 |
+| `cached_per_1m` | number \| null | 币种 / 百万 tokens | 缓存命中（读取）的输入价。缓存写入、存储费不在这一列，官方有公布的写在 `tier_notes`。null = 没有记录缓存命中价 |
+| `off_peak_input_per_1m` | number \| null | 币种 / 百万 tokens | 空闲时段输入价，只有官方页公布了峰谷价的渠道才有 |
+| `off_peak_output_per_1m` | number \| null | 币种 / 百万 tokens | 空闲时段输出价 |
+| `off_peak_cached_per_1m` | number \| null | 币种 / 百万 tokens | 空闲时段缓存命中价 |
+| `off_peak_hours` | string \| null | 文本 | 官方公布的高峰 / 空闲时段，附来源 |
+| `tier_notes` | string \| null | 文本 | 档位、缓存写入价、Batch 折扣、音频价、限时优惠 |
+| `retired` | boolean | | `true` = 型号已退役、弃用或已下架 |
+| `retired_status` | string \| null | `retired`、`deprecated`、`openrouter_expiration` | `retired`：厂商已停用这个名字，请求可能由别的模型提供并计费。`deprecated`：厂商公布了下线日期。`openrouter_expiration`：只有 OpenRouter 标了到期日 |
+| `retired_shutdown` | string \| null | `YYYY-MM-DD` | 公布的下线日期 |
+| `retired_replacement` | string \| null | `model_id` | 厂商推荐的替代型号 |
+| `retired_note` | string \| null | 文本 | |
+| `retired_source_url` | string \| null | URL | 退役状态的来源 |
+| `retired_verified_at` | string \| null | ISO 8601 | 退役状态的核实时间 |
+| `verified` | boolean | | 价格是从 `source_url` 读到的 |
+| `verified_at` | string | ISO 8601 UTC | 最后一次从 `source_url` 读到价格的时间 |
+| `check_method` | string | `auto`、`manual` | `auto`：脚本读取（静态 HTML 或 API）。`manual`：人工用无头浏览器读取 |
+| `stale` | boolean | | 满足任一条件为 `true`：`verified_at` 超过 7 天；最近一次抓取失败；公布的改价已生效但还没复核 |
+| `fetch_failed_reason` | string \| null | 文本 | 最近一次抓取失败的原因（保留上一次成功的价格） |
+| `fetch_failed_at` | string \| null | ISO 8601 UTC | 最近一次抓取失败的时间 |
+| `source_url` | string | URL | 读到价格的官方价格页 |
+| `access_direct` | string \| null | `yes`、`no`、null | 中国大陆不用代理能否直接使用 |
+| `access_alipay` | string \| null | `yes`、`no`、null | 是否支持支付宝 |
+| `access_real_name` | string \| null | `yes`、`no`、null | 是否需要实名认证 |
+| `access_overseas_card` | string \| null | `yes`、`no`、null | 是否需要海外银行卡 |
+| `access_region_restricted` | string \| null | 空格分隔的 ISO 3166-1 代码 | 厂商排除的地区。null = 未记录 |
+| `access_region_source` | string \| null | URL | `access_region_restricted` 的来源 |
+| `access_source_url` | string \| null | URL | 支付、实名几项的来源 |
+| `access_verified_at` | string \| null | `YYYY-MM-DD` | 可用性几项的核实日期（只到日） |
+
+### `data/prices.json` 文件头
+
+| 键 | 含义 |
 |---|---|
-| 只有国际官网 | 22 |
-| 只有国内官网 | 20 |
-| 国内官网 + 国际官网 | 3 |
-
-线上站点还有 4 家厂商只有聚合渠道价格（Mistral AI、小米 MiMo、阶跃星辰、英伟达），不在本数据集里。
-
-模型列表是人工挑选的（站点源码里的 `data/catalog.json`），不是各厂商的全部模型。
-
-## 字段
-
-`prices.csv` 的列和 `prices.json → prices[]` 里每个对象的字段一一对应（37 列，schema 1.2.0）。线上站点导出仍是 47 列（多出来的 10 列是 OpenRouter 专用：`or_*`、`quantized_min_*`、`licensed_cloud_*`），且还含聚合渠道行。本仓库去掉那 10 列，只保留 48 行官网价格。机器可读 schema：`schema/prices.schema.json`。
-
-| 字段 | 类型 | 单位 / 取值 | 示例 | 说明 |
-|---|---|---|---|---|
-| `model_id` | string | apiprice.app 内部标识 | `deepseek-v4.1-flash` | 站内稳定主键，**不一定**是调用厂商 API 时传的模型名 |
-| `model` | string | 显示名 | `DeepSeek V4.1 Flash` | |
-| `provider` | string | 上表 12 个 id 之一 | `deepseek` | |
-| `provider_model_id` | string \| null | 厂商 API 模型名 | null | 尚未录入（本快照全部为 null）；从不臆造 |
-| `channel` | string | `official_cn`、`official_intl` | `official_cn` | `official_cn` = 国内官网；`official_intl` = 国际官网。聚合渠道不在第一版导出里 |
-| `region` | string \| null | 地域 id | `cn-beijing` | 价格适用的云地域。5 行通义千问有值，其余为 null |
-| `currency` | string | `CNY`、`USD` | `CNY` | 渠道原币种，**没有换算** |
-| `input_per_1m` | number | 每百万输入 token 的价格（原币种） | `2` | 未命中缓存的输入价。分档计价取最低档，峰谷价取高峰价 |
-| `output_per_1m` | number | 每百万输出 token 的价格 | `8` | 分档规则同上 |
-| `cached_per_1m` | number \| null | 每百万缓存命中输入 token 的价格 | `0.04` | 只是缓存**读取**价，不含缓存写入价。48 行官网价格里有 9 行为 null（全是 `official_cn`），表示没有记录缓存价 |
-| `off_peak_input_per_1m` | number \| null | 每百万 token | `1` | 闲时输入价。仅官网公布峰谷价时填写（4 行 DeepSeek）；其余为 null |
-| `off_peak_output_per_1m` | number \| null | 每百万 token | `4` | 闲时输出价 |
-| `off_peak_cached_per_1m` | number \| null | 每百万 token | `0.02` | 闲时缓存命中价 |
-| `off_peak_hours` | string \| null | 自由文本 | `Peak 01:00-04:00 and 06:00-10:00 UTC …` | 高峰 / 闲时窗口（按官网原文），并附来源 |
-| `tier_notes` | string \| null | 自由文本 | `Cache write $5/MTok; batch -50%` | 分档、缓存写入价、批量折扣、限时促销。6 行为 null |
-| `retired` | boolean | `true`、`false` | `false` | 该模型名已退役、已弃用，或仅 OpenRouter 标明到期时为 `true`。行会保留，但不得当作当前最低价排名。本快照 48 行官网价格里有 2 行为 `true`。 |
-| `retired_status` | string \| null | `retired`、`deprecated`、`openrouter_expiration`、null | `deprecated` | `retired` = 厂商退役了该名称（可能仍按另一型号计费）；`deprecated` = 厂商已公告下线日期；`openrouter_expiration` = 只有 OpenRouter 标了到期（无厂商公告）。`retired=false` 时为 null。 |
-| `retired_shutdown` | string \| null | 日期 `YYYY-MM-DD` | `2026-11-18` | 已知的下线 / 到期日期 |
-| `retired_replacement` | string \| null | apiprice.app 内部标识 | `minimax-m3` | 厂商建议的替代型号 `model_id`（有则填写） |
-| `retired_note` | string \| null | 自由文本 | `MiniMax: M2.5/M2.7 close…` | 退役 / 弃用说明 |
-| `retired_source_url` | string \| null | URL | `https://platform.minimaxi.com/docs/guides/models-intro` | 退役状态的来源（`openrouter_expiration` 时可能是 OpenRouter） |
-| `retired_verified_at` | string \| null | ISO 8601 时间 | `2026-10-17T12:43:54+08:00` | 退役状态的核实时间 |
-| `verified` | boolean | `true` | `true` | 本快照的 48 行官网价格都是 `true` |
-| `verified_at` | string | ISO 8601 UTC 时间 | `2026-10-17T03:45:56.903Z` | 从 `source_url` 读到这个价格的时间 |
-| `check_method` | string | `auto`、`manual` | `auto` | `auto` = 脚本抓取（静态 HTML/API）；`manual` = 人工用无头浏览器读。11 行 auto / 37 行 manual |
-| `stale` | boolean | `true`、`false` | `false` | `verified_at` 超过 7 天、上次抓取失败、或已公告调价生效但尚未重新核实，则为 true |
-| `fetch_failed_reason` | string \| null | 自由文本 | null | 上次抓取失败原因（仍保留上次成功价格） |
-| `fetch_failed_at` | string \| null | ISO 8601 UTC | null | 上次抓取失败时间 |
-| `source_url` | string | URL | `https://api-docs.deepseek.com/zh-cn/quick_start/pricing` | 该渠道的官方价格页 |
-| `access_direct` | string \| null | `yes`、`no`、null | `yes` | 大陆能否不经代理直接使用。null = **未核实**（页面上显示为 `?`），不等于"否" |
-| `access_alipay` | string \| null | `yes`、`no`、null | `yes` | 能否用支付宝付款 |
-| `access_real_name` | string \| null | `yes`、`no`、null | `yes` | 是否要求实名认证 |
-| `access_overseas_card` | string \| null | `no`、null | `no` | 是否必须用海外卡（目前没有 `yes`） |
-| `access_region_restricted` | string \| null | 空格分隔的 ISO 3166 代码，或 null | null | 厂商支持地区列表里排除的地区。null = 未记录（本快照 48 行全部为 null） |
-| `access_region_source` | string \| null | URL | null | `access_region_restricted` 的来源 |
-| `access_source_url` | string \| null | URL | `https://api-docs.deepseek.com/zh-cn/faq` | 支付、实名等标志的来源 |
-| `access_verified_at` | string \| null | 日期 `YYYY-MM-DD` | `2026-10-17` | 只有日期，和 `verified_at` 格式不同。有 3 行为 null |
-
-`prices.json` 的顶层字段：
-
-| 字段 | 2026-10-17 的值 |
-|---|---|
-| `license` | `CC BY 4.0` |
+| `license`、`license_url` | `CC BY 4.0` 和许可链接 |
 | `source` | `https://apiprice.app` |
-| `schema_version` | `1.2.0` |
-| `usd_cny` | 6.698464 |
-| `fx_verified_at` | 汇率核实时间 |
+| `source_export` | 本快照来自哪份导出 |
+| `dataset`、`dataset_scope` | 数据集名称，以及保留了哪些渠道 |
+| `schema_version` | 1.3.0 |
+| `usd_cny` | 1 美元兑多少人民币，和网站同一次导出用的汇率相同 |
+| `fx_verified_at` | `usd_cny` 对应的日期字段，即这个汇率的读取时间。格式是 UTC 的 ISO 8601 时间戳，如 `2026-10-18T00:00:19.633Z`，换成 UTC+8 日期是 2026-10-18。引用 `usd_cny` 时请一起写上这个日期 |
 | `unit` | `per 1M tokens` |
-| `generated_at` | 导出时间 |
-| `count` | 行数 |
-| `notes` | retired、null、闲时价、stale、check_method 的定义 |
-| `prices` | 数据行 |
+| `generated_at` | 网站导出时间（ISO 8601 UTC） |
+| `count` | `prices[]` 的行数 |
+| `recheck_days` | （1.3.0）`verified_at` 超过多少天标为 `pending_recheck`（`14`） |
+| `cite_as` | （1.3.0）本快照的纯文本引用格式（见下文「引用格式」） |
+| `notes` | null、峰谷价、stale、check_method、retired 以及 1.3.0 字段的简短定义 |
 
-本仓库的 `data/prices.json` 还会加上 `license_url`、`source_export`、`dataset`、`dataset_scope`，并去掉 OpenRouter 相关说明。
+## 1.3.0 起
 
-CSV 里**没有**汇率和 `generated_at`，需要时从 JSON 取。
+`schema_version` 为 `1.3.0` 时（网站和本仓库）才有这些字段，更早的快照（1.2.0）没有。
+
+1.3.0 **只新增字段**：1.2.0 每个字段的名称、类型、取值、含义都不变。新列加在每行末尾，顺序如下：
+
+| 字段 | 类型 | 取值 | 含义 |
+|---|---|---|---|
+| `provider_country` | string \| null | ISO 3166-1 alpha-2，如 `CN`、`US` | 运营该厂商 API 服务的公司所在国，依据官方条款里的签约主体、官网公司页、公司登记信息；总部所在国这类无争议事实也可依据第三方资料。**核实不到就是 null**，网站显示 `?` |
+| `provider_country_source_url` | string \| null | URL | 证明页面。只有 `provider_country` 为 null 时它才为 null |
+| `provider_country_basis` | string \| null | `terms_of_service`、`company_page`、`company_registry`、`third_party_reference` | 来源类型 |
+| `provider_country_verified_at` | string \| null | `YYYY-MM-DD` | 来源最后一次核实的日期 |
+| `pending_recheck` | boolean | | 待复核。满足**任一**条件为 `true`：<br>· 构建时距最后核实超过 14 天<br>· 最近一次抓取失败<br>· 公布的改价已生效但还没复核<br>这一行照常列出，和网站上「待复核」标签同一个判定 |
+| `pending_recheck_reasons` | 字符串列表 | `age`、`fetch_failed`、`scheduled_change` 的子集 | 待复核的原因。`pending_recheck` 为 false 时为空；CSV 里用 `;` 连接 |
+| `last_verified_date_utc8` | string | `YYYY-MM-DD` | `verified_at` 换成 UTC+8 的日期，和网站上显示的日期相同 |
+
+文件头新增 `recheck_days`（`14`，即构建时用的阈值）和 `cite_as`。`stale` 保持不变（7 天规则），只为兼容，建议改用 `pending_recheck`。
+
+**「国产」怎么算**：
+
+- 1.3.0 起，只有 `provider_country` 为 `CN`（即已核实、有来源）的厂商才算国产。
+- `provider_country` 为 null 的厂商，既不算国产，也不算非国产。
+- 1.3.0 之前数据集里没有国家字段，请不要自行推断。
+
+## 取数方法
+
+- **官方页**：每个价格都从厂商自己的价格页读取。静态 HTML 或 API 用脚本读，其余用无头浏览器读。读的是哪个页面就写在 `source_url`。
+- **交叉核对**：官方价格和 [models.dev](https://models.dev) 的公开数据比对。差距超过 15% 时标记复查，以官方页为准。比对结果不导出。
+- **汇率**：美元兑人民币取自 open.er-api.com（[Rates By Exchange Rate API](https://www.exchangerate-api.com)），每天更新。
+- **抓取失败**：保留上一次成功的价格，并在 `fetch_failed_reason` / `fetch_failed_at` 写明原因。没有可信来源的价格不发布。
+- **国内可用性**：各项都依据厂商自己的文档和条款，每一项都链接来源。大陆网络只实测过一次（上海联通，2026-10-17），其他运营商没有测。
 
 ## 更新频率
 
-网站自称每日更新，方法论页也写着汇率每天刷新。更新脚本（`npm run update`）会重新读取各家官网（线上站点还会读聚合渠道 API），并记录差异；网站重新构建时导出这些文件。每次站点部署后，用 `scripts/sync.mjs` 把官网渠道行同步到本公开仓库（见 `scripts/SYNC.md`）。变动记录从 **2026-10-17** 开始，还没有长期历史。
+- **每天**：所有官方页每天读一次，在早上（UTC+8）。有些厂商的条款不允许更频繁的自动访问，所以官方价格至少每天更新一次，但不会更频繁。
+- **更频繁的**：部分官方来源每几小时检查一次。
+- **同步**：检查发现数据有变化时，网站重新构建并部署，随后本仓库从网站实时导出同步（`scripts/sync.mjs`）。没有变化的日子可能没有新 commit。
 
-每行有多新，看它的 `verified_at`。网站上超过 14 天没重新核实的行会显示成灰色。
+每一行的 `verified_at` 才是真正的新鲜度。
 
-## 数据来源与核实方式
+## 许可和署名
 
-- **官网静态 HTML**：OpenAI、Anthropic、DeepSeek（中英文页面）。
-- **官网无头浏览器（Chrome）**：Google、xAI、阿里云百炼、Kimi、智谱、MiniMax、百度千帆、腾讯混元、火山方舟。
-- **交叉核对**：官网价格会和 [models.dev](https://models.dev) 开放数据比对，差距超过 15% 就标记出来，以官网为准。核对结果暂时没有导出。
-- **汇率**：`https://open.er-api.com/v6/latest/USD`。
-- **国内可用性**：逐个渠道对照厂商自己的文档和条款核实，每个标志都附来源链接。方法论页记录了一次大陆网络实测（2026-10-17，上海联通），其他运营商没测。
-- 没有可信来源的价格不发布。纠错请发邮件到 `data@apiprice.app`，附上官方链接。
+数据以 **[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.zh-hans)** 发布：只要署名，就可以复制、分享、改编，包括商用。
 
-线上站点还会跟踪 OpenRouter 标价；那些行**不在本数据集里**（第一版的决定）。
+- **最低署名要求**：「apiprice.app LLM API Prices，截至 YYYY-MM-DD，CC BY 4.0」，并附 <https://apiprice.app> 链接。
+- **许可范围**：价格本身是各厂商公开的刊例价。许可覆盖的是本数据集的整理工作（挑选、核实、可用性标注和备注）。计费以厂商页面为准。
+- **汇率**：来自 ExchangeRate-API 的免费接口。转发 `usd_cny` 时请保留他们的署名，并注明日期（`fx_verified_at`）。
 
-## 已知局限
+## 引用格式（cite_as）
 
-- **峰谷价**：DeepSeek 闲时更便宜。主价格列是**高峰价**；闲时价在 `off_peak_input_per_1m` / `off_peak_output_per_1m` / `off_peak_cached_per_1m`，窗口在 `off_peak_hours`（4 行 DeepSeek；其余为 null）。
-- **分档计价**：下面这些分档都只取**最低档**：
-  - 长上下文分档（如 ≥200K 按 2 倍计费）
-  - Anthropic 的 ≤100K / >100K
-  - OpenAI 的长上下文价
-  - 国内按单次输入长度分档（如"0<Token≤1M""输入≤32K"）
+纯文本（`data/prices.json` 文件头的 `cite_as` 字段也是这段）：
 
-  分档说明以自由文本写在 `tier_notes`。
-- **缓存**：`cached_per_1m` 是缓存命中（读取）价。缓存写入价、存储费、批量推理折扣（常见五折）都没有对应的列。
-- **已公告的调价**：有些官网已经公告了以后的价格（如"2026-11-30 前……之后……"），表里只有核实时正在生效的价格。
-- **模态**：价格按文本输入算，通常也包括图片和视频。音频输入经常另外定价（如部分 Gemini 模型），没有对应的列。
-- **促销价和刊例价**：一般列刊例价。页面上另有限时折扣时（例如某个通义千问模型显示"限时 8 折"），`tier_notes` 会记下来。每行应理解为"我们判断当时生效的价格"，最新促销请看 `source_url`。
-- **不含第三方聚合渠道**：第一版只含 `official_cn` 和 `official_intl`。OpenRouter 以及其他中转站 / 代理商的价格都不在本数据集里（线上站点仍会展示）。上面的统计是过滤后的结果（2026-10-17 线上 113 行里筛出 48 行）。
-- **退役 / 弃用型号**：`retired=true` 的行仍保留上次核实的价格，不要把它们当成当前最低价。本快照：`gemini-3.1-flash-lite`（official_intl，deprecated，下线 2027-05-07）和 `minimax-m2.7`（official_cn，deprecated，下线 2026-11-18）。
-- **币种和汇率**：国内官网行是人民币，**没有换算**。要换算的话，请用同一份快照里的 `usd_cny`，并注明换算过。网站上的"综合价"（0.75 × 输入 + 0.25 × 输出，按美元比较）不在数据里。
-- **地域**：国内云厂商的价格可能跟地域有关（如阿里云"华北2（北京）"）。已知时写在 `region` 列（5 行通义千问为 `cn-beijing`；其余为 null）。
-- **免费额度**：免费模型、试用额度和优惠活动不是按 token 计价，不在这张表里。见 <https://apiprice.app/zh/free/> 和 <https://apiprice.app/zh/free-credits/>。
-- **null 表示未知**：`access_*` 字段里的 null 是未核实（页面上显示为 `?`），不要当成"否"。
-- **模型标识**：`model_id` 是 apiprice.app 的内部标识，不是调用 API 时传的模型名。
-- **这是快照**：厂商可能随时调价。用某个数字之前，请先看它的 `verified_at` 和 `source_url`。
+> apiprice.app (2026). *apiprice.app LLM API Prices* [Data set], snapshot as of 2026-10-19, schema 1.3.0. CC BY 4.0. https://github.com/alchemistklk/apiprice-data
 
-## 用法
+在回答、帖子、图表里可以用简写：**「来源：apiprice.app（截至 2026-10-19）」**，并附链接。
 
-### curl
-
-```bash
-curl -sL https://apiprice.app/data/prices.json -o prices.json
-curl -sL https://apiprice.app/data/prices.csv  -o prices.csv
-# 用 jq 列出国内官网价格
-jq -r '.prices[] | select(.channel=="official_cn") | [.model, .input_per_1m, .output_per_1m, .currency] | @tsv' prices.json
-```
-
-### pandas
-
-```python
-import json, urllib.request
-import pandas as pd
-
-df = pd.read_csv("https://apiprice.app/data/prices.csv")
-
-# 汇率在 JSON 顶层，CSV 里没有
-meta = json.load(urllib.request.urlopen("https://apiprice.app/data/prices.json"))
-fx = meta["usd_cny"]
-
-to_usd = df["currency"].map({"USD": 1.0, "CNY": 1 / fx})
-df["input_usd_per_1m"] = df["input_per_1m"] * to_usd
-df["output_usd_per_1m"] = df["output_per_1m"] * to_usd
-print(df.sort_values("input_usd_per_1m")[["model", "channel", "input_usd_per_1m"]].head(10))
-```
-
-### Hugging Face `datasets`（HF 仓库发布后可用）
-
-```python
-from datasets import load_dataset
-
-latest = load_dataset("apiprice/llm-api-prices", "latest", split="train")   # 建议的仓库名
-df = latest.to_pandas()
-```
-
-## 引用
-
-请注明 **apiprice.app** 和快照日期，并附上链接：
-
-> apiprice.app（截至 2026-10-17）. *LLM API Prices.* https://apiprice.app — CC BY 4.0
+BibTeX（与 `CITATION.bib` 相同）：
 
 ```bibtex
 @misc{apiprice_llm_api_prices,
   author       = {{apiprice.app}},
   title        = {{apiprice.app LLM API Prices}},
   year         = {2026},
-  note         = {Snapshot as of 2026-10-17. Licensed under CC BY 4.0},
-  howpublished = {\url{https://apiprice.app/data/prices.json}},
+  note         = {Snapshot as of 2026-10-19 (UTC+8), schema 1.3.0. Licensed under CC BY 4.0},
+  howpublished = {\url{https://github.com/alchemistklk/apiprice-data}},
   url          = {https://apiprice.app}
 }
 ```
 
-仓库里另有机器可读的 `CITATION.cff`。引用时把日期改成你实际用的那份快照的日期。
+如果引用的是更早的快照，用那个 commit 里 `data/prices.json` 的 `generated_at`，换成 UTC+8 的日期。
 
-## 许可证
+## 已知局限
 
-数据采用[知识共享署名 4.0 国际许可协议（CC BY 4.0）](https://creativecommons.org/licenses/by/4.0/deed.zh-hans)。可以复制、转发、改编，也可以商用，条件是注明来源 apiprice.app、附上许可证链接，并说明改了什么。
+- 阶梯价只取最低一档；缓存写入、存储、Batch、音频价格没有单独的列（见 `tier_notes`）。
+- 公布的未来改价，生效前不进价格列；网站改价记录里类型为 `scheduled`。
+- 国内云厂商的价格可能因地域不同，已知的写在 `region`。
+- 免费额度、试用金、Coding Plan 不是按 token 计的价格，不在本数据集。
+- `model_id` 是网站的 slug，不是 API 模型名。
+- 国内可用性依据厂商文档，加一次网络实测。
+- 不含聚合商和中转商的价格；OpenRouter 价格请看网站。
 
-价格本身是厂商公开的事实。许可证覆盖的是 apiprice.app 的整理成果，包括选取、结构、核实信息和可用性标注，不主张对厂商页面或价格本身的任何权利。厂商和模型名称是各自所有者的商标。
+## 纠错
 
-## 相关链接
+发邮件到 `data@apiprice.app`，请附官方页面链接。
 
-- 价格总表：<https://apiprice.app/zh/> · Price table: <https://apiprice.app/en/>
-- 最便宜的大模型 API：<https://apiprice.app/zh/cheapest-llm-api/>
-- 国内可直连的大模型 API：<https://apiprice.app/zh/china-llm-api/>
-- 价格变动：<https://apiprice.app/zh/changes/> · RSS：<https://apiprice.app/zh/rss.xml>
-- 数据方法论：<https://apiprice.app/zh/methodology/>
+## 占位符
+
+同步脚本用刚写好的 `data/prices.json` 计算下面这些值，替换 `README.md`、`README.zh.md`、`CITATION.bib` 里的占位符。算不出来就同步失败，不写猜测值。
+
+用反引号包住的占位符（比如下表里的）是说明文字，**不替换**。只匹配没有反引号的：``(?<!`)\{\{(ROWS|MODELS|PROVIDERS|AS_OF|YEAR|SCHEMA_VERSION)\}\}(?!`)``。遇到不认识的 `{{…}}` 名字，同步失败。
+
+| 占位符 | 怎么算 | 格式示例 |
+|---|---|---|
+| `{{ROWS}}` | `data/prices.json` 里 `prices.length`（必须等于 `count`） | `50` |
+| `{{MODELS}}` | `prices[]` 里不重复的 `model_id` 个数 | `46` |
+| `{{PROVIDERS}}` | `prices[]` 里不重复的 `provider` 个数 | `12` |
+| `{{AS_OF}}` | `generated_at` 换成 UTC+8 后的 `YYYY-MM-DD`。本仓库所有日期（README、`CITATION.bib`、`CITATION.cff`、commit 信息）都统一用这个 UTC+8 日期 | `2026-10-18` |
+| `{{YEAR}}` | `{{AS_OF}}` 的前 4 位 | `2026` |
+| `{{SCHEMA_VERSION}}` | `data/prices.json` 的 `schema_version` | `1.3.0` |
+

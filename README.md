@@ -1,222 +1,213 @@
 # apiprice.app LLM API Prices
 
-> GitHub repository: [`alchemistklk/apiprice-data`](https://github.com/alchemistklk/apiprice-data) (public). No Hugging Face repository exists yet; the `apiprice/llm-api-prices` id below is a proposal only. Statistics were computed from the live export on **2026-10-17** (`generated_at` 2026-10-17T07:30:37.165Z UTC = 15:30 UTC+8), **filtered to official channels only** (48 of 113 live rows). License: **CC BY 4.0**.
+LLM API prices per 1M tokens, one row per model per purchase channel. The rows come only from the providers' official China sites (CNY) and official international sites (USD). **This dataset contains official-channel prices only; aggregator and reseller prices (e.g. OpenRouter) are not included.**
 
-A bilingual (English / 中文) dataset of large-language-model API prices, published by [apiprice.app](https://apiprice.app). Each row is **one model on one official purchase channel**: the provider's official China site (CNY) or the provider's official international site (USD). **v1 does not include third-party aggregators** (no OpenRouter or reseller rows). Every row carries the URL it was read from (`source_url`) and when it was read (`verified_at`). Each row also has per-channel flags for whether the channel is usable from mainland China (direct access, Alipay, real-name ID, overseas card), and each flag has its own source.
+Every row records:
+
+- the page the price was read from (`source_url`) and when it was read (`verified_at`);
+- whether the channel can be used from mainland China, with a source for each flag.
+
+Published by [apiprice.app](https://apiprice.app). License: **CC BY 4.0**. 中文说明见 [README.zh.md](README.zh.md).
+
+**Snapshot as of 2026-10-19 (UTC+8):**
+
+- 50 rows
+- 46 models
+- 12 providers
+- schema 1.3.0
+
+Links:
 
 - Website: <https://apiprice.app/en/> · 中文: <https://apiprice.app/zh/>
-- Methodology: <https://apiprice.app/en/methodology/>
-- Live files: <https://apiprice.app/data/prices.json> · <https://apiprice.app/data/prices.csv> · <https://apiprice.app/llms.txt> · <https://apiprice.app/llms-full.txt>
+- How prices are collected: <https://apiprice.app/en/methodology/>
+- Live files on the site (these also include aggregator rows, which this dataset leaves out): <https://apiprice.app/data/prices.json> · <https://apiprice.app/data/prices.csv> · <https://apiprice.app/data/changes.json>
 
-## Coverage (as of 2026-10-17)
+## Files
 
-**Scope of v1:** only official channels — `official_intl` and `official_cn`. Third-party aggregators (including OpenRouter) are **not** included. Counts below are filtered from the live export on that day.
-
-| | Count |
+| Path | What it is |
 |---|---|
-| Rows (model × channel prices) | **48** |
-| Distinct models | **45** |
-| Providers | **12** |
-| Rows by channel | `official_intl` 25 · `official_cn` 23 |
-| Rows by currency | USD 25 · CNY 23 |
+| `data/prices.json` | Latest snapshot: header fields (licence, schema version, FX rate, export time) plus `prices[]` |
+| `data/prices.csv` | Same rows and column order as `prices.json → prices[]`. It has no header metadata, so take the FX rate and export time from the JSON |
+| `schema/prices.schema.json` | JSON Schema for `data/prices.json` |
+| `scripts/sync.mjs` | Rebuilds `data/` from the live export (Node ≥ 18, no dependencies). See `scripts/SYNC.md` |
+| `CITATION.cff` / `CITATION.bib` | Citation metadata. GitHub shows "Cite this repository" from `CITATION.cff` |
+| `LICENSE` | CC BY 4.0 legal text |
 
-| Provider | `provider` | HQ | Models | official_intl rows | official_cn rows |
-|---|---|---|---|---|---|
-| Google Gemini | `google` | US | 9 | 9 | 0 |
-| xAI | `xai` | US | 6 | 6 | 0 |
-| Alibaba Qwen (Model Studio) | `qwen` | CN | 5 | 0 | 5 |
-| Anthropic | `anthropic` | US | 4 | 4 | 0 |
-| Baidu ERNIE (Qianfan) | `baidu` | CN | 4 | 0 | 4 |
-| ByteDance Doubao (Volcengine Ark) | `bytedance` | CN | 3 | 0 | 3 |
-| Moonshot AI (Kimi) | `moonshot` | CN | 3 | 1 | 3 |
-| OpenAI | `openai` | US | 3 | 3 | 0 |
-| Zhipu GLM (Z.ai) | `zhipu` | CN | 3 | 0 | 3 |
-| DeepSeek | `deepseek` | CN | 2 | 2 | 2 |
-| MiniMax | `minimax` | CN | 2 | 0 | 2 |
-| Tencent Hunyuan | `tencent` | CN | 1 | 0 | 1 |
+**Price history.** History is kept in git: each sync is one commit (`data: sync YYYY-MM-DD …`), so `git log -p data/prices.csv` shows every change. There is no separate history file. The site's change log is <https://apiprice.app/data/changes.json>.
 
-Models by channel coverage:
+## Coverage
 
-| Channels with a price | Models |
+- **Channels.** Only `official_intl` (the provider's international site, USD) and `official_cn` (the provider's China site, CNY). Aggregators such as OpenRouter and resellers are out of scope; `dataset_scope` in `data/prices.json` says the same.
+- **Providers.** Anthropic, OpenAI, Google Gemini and xAI on international sites. DeepSeek and Moonshot AI (Kimi) on both. Alibaba Qwen (Model Studio), Zhipu GLM, MiniMax, Baidu ERNIE (Qianfan), ByteDance Doubao (Volcengine Ark) and Tencent Hunyuan on China sites.
+- **Counts.** Exact counts for each snapshot are at the top of this file, or count them from `data/prices.json`.
+- **Model list.** It is curated, not every model each provider sells.
+
+## How to read a row
+
+- **Unit.** Every `*_per_1m` value is a price per 1 million tokens, in the row's `currency`.
+- **Currency.** `official_cn` rows are CNY and `official_intl` rows are USD. Nothing is converted. To compare them, use `usd_cny` from the same `prices.json` and say you converted.
+- **Input price.** `input_per_1m` is the uncached (cache-miss) price.
+- **Tiers.** Where the price depends on context length or request size, the columns hold the **lowest tier**. The other tiers are in `tier_notes`.
+- **Peak / off-peak.** Where the provider charges by time of day (DeepSeek today), the main columns hold the **peak** price. Off-peak prices are in `off_peak_*`, and the window is in `off_peak_hours`.
+- **Promotions.** Official channels show the **list price**. A time-limited discount on the official page is only mentioned in `tier_notes`.
+- **null.** It means *not known or not verified*. It never means "no" or "free". The site shows it as `?`.
+- **Models no longer on sale (retired, deprecated or delisted).** Rows with `retired = true` keep their last verified price. Do not rank them as the cheapest option.
+
+## Fields (schema 1.2.0)
+
+The 1.2.0 fields. All of them are still present, unchanged, in 1.3.0; the 1.3.0 additions are listed below.
+
+| Field | Type | Values / unit | Meaning |
+|---|---|---|---|
+| `model_id` | string | apiprice.app slug, e.g. `deepseek-v4-pro-0813` | Stable key on apiprice.app. **Not** necessarily the model string you send to the provider's API |
+| `model` | string | display name | |
+| `provider` | string | provider id, e.g. `deepseek` | Who makes the model, not who sells it |
+| `provider_model_id` | string \| null | | The provider's API model string. Not recorded yet (null), never guessed |
+| `channel` | string | `official_cn`, `official_intl` | Where the price applies |
+| `region` | string \| null | e.g. `cn-beijing` | Cloud region the price applies to, where the provider prices by region (e.g. Alibaba Model Studio). null elsewhere |
+| `currency` | string | `CNY`, `USD` | The channel's own currency |
+| `input_per_1m` | number | currency / 1M tokens | Uncached input price |
+| `output_per_1m` | number | currency / 1M tokens | Output price |
+| `cached_per_1m` | number \| null | currency / 1M tokens | Cached input (cache hit / read) price. Cache **write** and storage prices are not here; they are in `tier_notes` where published. null = no cache-read price recorded |
+| `off_peak_input_per_1m` | number \| null | currency / 1M tokens | Off-peak input price, only on channels whose official page publishes one |
+| `off_peak_output_per_1m` | number \| null | currency / 1M tokens | Off-peak output price |
+| `off_peak_cached_per_1m` | number \| null | currency / 1M tokens | Off-peak cached input price |
+| `off_peak_hours` | string \| null | free text | The peak / off-peak window as published, with its source |
+| `tier_notes` | string \| null | free text | Tiers, cache-write prices, batch discounts, audio prices, time-limited promotions |
+| `retired` | boolean | | `true` = the model is retired, deprecated or delisted |
+| `retired_status` | string \| null | `retired`, `deprecated`, `openrouter_expiration` | `retired`: the provider retired the name (it may be served and billed as another model). `deprecated`: the provider announced a shutdown date. `openrouter_expiration`: only OpenRouter lists an end date |
+| `retired_shutdown` | string \| null | `YYYY-MM-DD` | Announced shutdown date |
+| `retired_replacement` | string \| null | `model_id` | The replacement the provider recommends |
+| `retired_note` | string \| null | free text | |
+| `retired_source_url` | string \| null | URL | Source for the retirement status |
+| `retired_verified_at` | string \| null | ISO 8601 | When the retirement status was checked |
+| `verified` | boolean | | The price was read from `source_url` |
+| `verified_at` | string | ISO 8601 UTC | When the price was last read from `source_url` |
+| `check_method` | string | `auto`, `manual` | `auto`: read by a script (static HTML or API). `manual`: read by a person with a headless browser |
+| `stale` | boolean | | `true` if `verified_at` is more than 7 days old, the last fetch failed, or an announced price change took effect and has not been re-checked |
+| `fetch_failed_reason` | string \| null | free text | Why the last fetch failed. The last good price is kept |
+| `fetch_failed_at` | string \| null | ISO 8601 UTC | When the last fetch failed |
+| `source_url` | string | URL | The official pricing page the price was read from |
+| `access_direct` | string \| null | `yes`, `no`, null | The channel works from mainland China without a proxy |
+| `access_alipay` | string \| null | `yes`, `no`, null | Alipay is accepted |
+| `access_real_name` | string \| null | `yes`, `no`, null | Real-name (ID) verification is required |
+| `access_overseas_card` | string \| null | `yes`, `no`, null | An overseas card is required |
+| `access_region_restricted` | string \| null | space-separated ISO 3166-1 codes | Regions the provider excludes. null = not recorded |
+| `access_region_source` | string \| null | URL | Source for `access_region_restricted` |
+| `access_source_url` | string \| null | URL | Source for the payment and ID flags |
+| `access_verified_at` | string \| null | `YYYY-MM-DD` | When the access flags were checked (date only) |
+
+### Header fields of `data/prices.json`
+
+| Key | Meaning |
 |---|---|
-| Official intl only | 22 |
-| Official CN only | 20 |
-| Official CN + official intl | 3 |
-
-Four providers that appear only on aggregators on the live site (Mistral AI, Xiaomi MiMo, StepFun, NVIDIA) are not in this dataset.
-
-The model list is curated (`data/catalog.json` in the site source). It is not every model each provider offers.
-
-## Fields
-
-The columns of `prices.csv` match the fields of each object in `prices.json → prices[]` (37 columns, schema 1.2.0). The live site export has 47 columns (the extra 10 are OpenRouter-only: `or_*`, `quantized_min_*`, `licensed_cloud_*`) and still includes aggregator rows. This repository drops those columns and keeps the 48 official rows. Machine-readable schema: `schema/prices.schema.json`.
-
-| Field | Type | Unit / allowed values | Example | Notes |
-|---|---|---|---|---|
-| `model_id` | string | apiprice.app slug | `deepseek-v4.1-flash` | Stable key used on apiprice.app. **Not** necessarily the model string you send to the provider's API. |
-| `model` | string | display name | `DeepSeek V4.1 Flash` | |
-| `provider` | string | one of the 12 ids above | `deepseek` | |
-| `provider_model_id` | string \| null | provider API model string | null | Not recorded yet (null on all rows); never guessed. |
-| `channel` | string | `official_cn`, `official_intl` | `official_cn` | `official_cn` = provider's China site; `official_intl` = international site. Aggregator channels are not exported in v1. |
-| `region` | string \| null | region id | `cn-beijing` | Cloud region the price applies to. Set on the 5 Qwen rows; null elsewhere. |
-| `currency` | string | `CNY`, `USD` | `CNY` | The channel's native currency. Prices are **not** converted. |
-| `input_per_1m` | number | currency per 1M input tokens | `2` | Uncached (cache-miss) input. Tiered pricing: lowest tier. Peak/off-peak: peak price. |
-| `output_per_1m` | number | currency per 1M output tokens | `8` | Same tier rules as input. |
-| `cached_per_1m` | number \| null | currency per 1M cached input tokens (cache read / hit) | `0.04` | Cache **write** prices are not in this column. `null` on 9 of the 48 official rows (all `official_cn`) where no cache-read price is recorded. |
-| `off_peak_input_per_1m` | number \| null | currency per 1M | `1` | Off-peak input price. Only where the official page publishes off-peak prices (4 DeepSeek rows); null elsewhere. |
-| `off_peak_output_per_1m` | number \| null | currency per 1M | `4` | Off-peak output price. |
-| `off_peak_cached_per_1m` | number \| null | currency per 1M | `0.02` | Off-peak cached input price. |
-| `off_peak_hours` | string \| null | free text | `Peak 01:00-04:00 and 06:00-10:00 UTC …` | Peak / off-peak window as published, with source. |
-| `tier_notes` | string \| null | free text | `Cache write $5/MTok; batch -50%` | Tiers, cache-write prices, batch discounts, time-limited promotions. Null on 6 rows. |
-| `retired` | boolean | `true`, `false` | `false` | `true` if this model name is retired, deprecated, or listed with an OpenRouter-only expiration. The row is kept but must not be ranked as cheapest. 2 of 48 official rows are `true` in this snapshot. |
-| `retired_status` | string \| null | `retired`, `deprecated`, `openrouter_expiration`, null | `deprecated` | `retired` = vendor retired the name (may be served/billed as another model); `deprecated` = vendor announced a shutdown date; `openrouter_expiration` = only OpenRouter lists an expiration (no vendor notice). null when `retired=false`. |
-| `retired_shutdown` | string \| null | date `YYYY-MM-DD` | `2026-11-18` | Announced shutdown / expiration date when known. |
-| `retired_replacement` | string \| null | apiprice.app slug | `minimax-m3` | Recommended replacement `model_id` when the vendor names one. |
-| `retired_note` | string \| null | free text | `MiniMax: M2.5/M2.7 close…` | Free-text note about retirement / deprecation. |
-| `retired_source_url` | string \| null | URL | `https://platform.minimaxi.com/docs/guides/models-intro` | Official (or OpenRouter, for `openrouter_expiration`) source for the status. |
-| `retired_verified_at` | string \| null | ISO 8601 timestamp | `2026-10-17T12:43:54+08:00` | When the retirement status was checked. |
-| `verified` | boolean | `true` | `true` | `true` on all 48 official rows in this snapshot. |
-| `verified_at` | string | ISO 8601 UTC timestamp | `2026-10-17T03:45:56.903Z` | When the price was read from `source_url`. |
-| `check_method` | string | `auto`, `manual` | `auto` | `auto` = fetched by script (static HTML/API); `manual` = read by a person with a headless browser. 11 auto / 37 manual. |
-| `stale` | boolean | `true`, `false` | `false` | true if `verified_at` is older than 7 days, the last fetch failed, or an announced price change took effect without re-verification. |
-| `fetch_failed_reason` | string \| null | free text | null | Why the last fetch failed (last good price kept). |
-| `fetch_failed_at` | string \| null | ISO 8601 UTC | null | When the last fetch failed. |
-| `source_url` | string | URL | `https://api-docs.deepseek.com/zh-cn/quick_start/pricing` | Official pricing page for that channel. |
-| `access_direct` | string \| null | `yes`, `no`, null | `yes` | Usable from mainland China without a proxy. null = **unverified** (shown as `?` on the site), not "no". |
-| `access_alipay` | string \| null | `yes`, `no`, null | `yes` | Whether Alipay is accepted. |
-| `access_real_name` | string \| null | `yes`, `no`, null | `yes` | Whether real-name / ID verification is required. |
-| `access_overseas_card` | string \| null | `no`, null | `no` | Whether an overseas card is required. (No `yes` values today.) |
-| `access_region_restricted` | string \| null | space-separated ISO 3166 codes, or null | null | Regions excluded by the provider's supported-regions list. null = not recorded (null on all 48 official rows in this snapshot). |
-| `access_region_source` | string \| null | URL | null | Source for `access_region_restricted`. |
-| `access_source_url` | string \| null | URL | `https://api-docs.deepseek.com/zh-cn/faq` | Source for the payment and ID flags. |
-| `access_verified_at` | string \| null | date `YYYY-MM-DD` | `2026-10-17` | Date only, unlike `verified_at`. Null on 3 rows. |
-
-Top-level keys of `prices.json`:
-
-| Key | Value on 2026-10-17 |
-|---|---|
-| `license` | `CC BY 4.0` |
+| `license`, `license_url` | `CC BY 4.0` and the licence URL |
 | `source` | `https://apiprice.app` |
-| `schema_version` | `1.2.0` |
-| `usd_cny` | 6.698464 |
-| `fx_verified_at` | FX check time |
+| `source_export` | The export this snapshot was built from |
+| `dataset`, `dataset_scope` | Dataset name, and which channels it keeps |
+| `schema_version` | 1.3.0 |
+| `usd_cny` | CNY per 1 USD. The same rate the website uses for the same export |
+| `fx_verified_at` | The date field for `usd_cny`: when that rate was read (ISO 8601 timestamp in UTC, e.g. `2026-10-18T00:00:19.633Z`; as a UTC+8 date that is 2026-10-18). Always cite `usd_cny` together with this date |
 | `unit` | `per 1M tokens` |
-| `generated_at` | export time |
-| `count` | row count |
-| `notes` | definitions of retired, null, off-peak, stale, check_method |
-| `prices` | the rows |
+| `generated_at` | When the site exported the data (ISO 8601 UTC) |
+| `count` | Number of rows in `prices[]` |
+| `recheck_days` | (1.3.0) Days after `verified_at` at which a row is flagged `pending_recheck` (`14`) |
+| `cite_as` | (1.3.0) Plain-text citation for this snapshot (see Citation below) |
+| `notes` | Short definitions: null, off-peak, stale, check_method, retired, and the 1.3.0 fields |
 
-This repository's `data/prices.json` also adds `license_url`, `source_export`, `dataset` and `dataset_scope`, and drops the OpenRouter note.
+## Since 1.3.0
 
-The CSV does **not** carry the FX rate or `generated_at`. Take them from the JSON.
+These fields exist when `schema_version` reads `1.3.0` (website and this repository). Older snapshots (1.2.0) do not have them.
+
+1.3.0 only **adds** fields: every 1.2.0 field keeps its name, type, values and meaning. The new columns come at the end of each row, in this order.
+
+| Field | Type | Values | Meaning |
+|---|---|---|---|
+| `provider_country` | string \| null | ISO 3166-1 alpha-2, e.g. `CN`, `US` | Country of the company that runs the provider's API service, taken from its official terms (contracting entity), company page, a company registry, or, for an undisputed headquarters country only, a third-party reference. **null when we could not verify it** (shown as `?` on the site) |
+| `provider_country_source_url` | string \| null | URL | The page that proves it. null exactly when `provider_country` is null |
+| `provider_country_basis` | string \| null | `terms_of_service`, `company_page`, `company_registry`, `third_party_reference` | What kind of source it is |
+| `provider_country_verified_at` | string \| null | `YYYY-MM-DD` | When the source was last checked |
+| `pending_recheck` | boolean | | `true` when the row needs a re-check. That happens if **any** of these holds: it was last verified more than 14 days before the build, the last fetch failed, or an announced price change has taken effect and the row has not been re-checked since. The row is still listed. Same rule as the site's "Pending re-check" label |
+| `pending_recheck_reasons` | list of string | subset of `age`, `fetch_failed`, `scheduled_change` | Why. Empty when `pending_recheck` is false. In the CSV the values are joined with `;` |
+| `last_verified_date_utc8` | string | `YYYY-MM-DD` | `verified_at` as a UTC+8 date: the same date the site shows |
+
+New header fields: `recheck_days` (`14`), the threshold used at build time, and `cite_as`. `stale` stays as it is (7-day rule) for compatibility. Prefer `pending_recheck`.
+
+**Chinese providers (国产).** From 1.3.0, a provider counts as Chinese only if `provider_country` is `CN`, which means it has been verified with a source. A provider whose `provider_country` is null is counted neither as Chinese nor as non-Chinese. Before 1.3.0 the dataset has no country field, so don't infer one.
+
+## How the data is collected
+
+- **Official pages.** Every price is read from the provider's own pricing page: by script where the page is static HTML or an API, and with a headless browser otherwise. That page is `source_url`.
+- **Cross-check.** Official prices are compared with [models.dev](https://models.dev) open data. A gap above 15 % is flagged for review, and the official page always wins. The comparison is not exported.
+- **FX.** USD/CNY comes from open.er-api.com ([Rates By Exchange Rate API](https://www.exchangerate-api.com)), refreshed daily.
+- **Failed fetches.** The last good price is kept, and `fetch_failed_reason` / `fetch_failed_at` say why. A price without a trustworthy source is not published.
+- **China usability.** The flags are checked against each provider's docs and terms, and every flag links its source. One mainland network test was run (Shanghai, China Unicom, 2026-10-17); other networks were not tested.
 
 ## Update frequency
 
-The site describes itself as updated daily, and the methodology page says the FX rate is refreshed daily. The update job (`npm run update`) re-reads the official pages (and, for the live site only, aggregator APIs), records diffs, and the site rebuild re-exports these files. After each site deploy, `scripts/sync.mjs` refreshes this public repository with official-channel rows only (see `scripts/SYNC.md`). Change history starts on **2026-10-17**, so there is no long history yet.
+- **Daily.** All official pages are read once a day, in the morning (UTC+8). Some providers' terms ask for no more frequent automated access, so daily is the floor for official prices.
+- **More often.** Some official sources are checked every few hours.
+- **Sync.** When a check changes data, the site is rebuilt and deployed, and this repository is synced from the live export right after (`scripts/sync.mjs`). A quiet day can have no new commit.
 
-Each row's `verified_at` shows how fresh it is. On the website, rows not re-verified for 14 days are greyed out.
+`verified_at` on each row is the real freshness signal.
 
-## Sources and verification
+## Licence and attribution
 
-- **Official pages, static HTML:** OpenAI, Anthropic, DeepSeek (English and Chinese pages).
-- **Official pages, headless Chrome:** Google, xAI, Alibaba Model Studio, Kimi, Zhipu, MiniMax, Baidu Qianfan, Tencent Hunyuan, Volcengine Ark.
-- **Cross-check:** official rows are compared against [models.dev](https://models.dev) open data. A gap above 15 % is flagged, and the official page always wins. The cross-check result is not in the export yet.
-- **FX:** `https://open.er-api.com/v6/latest/USD`. [Rates By Exchange Rate API](https://www.exchangerate-api.com) (attribution required by the provider's free API).
-- **China-usability flags:** checked per channel against the provider's own docs and terms, and each flag links its source. The methodology page documents one mainland network test (Shanghai, China Unicom, 2026-10-17). Other ISPs were not tested.
-- Prices without a trustworthy source are not published. For corrections, email `data@apiprice.app` with an official link.
+The data is licensed under **[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)**. You can copy, share and adapt it, including commercially, as long as you give credit.
 
-The live site also tracks OpenRouter list prices; those rows are **excluded from this dataset** (v1 decision).
+- **Minimum credit:** "apiprice.app LLM API Prices, as of YYYY-MM-DD, CC BY 4.0", with a link to <https://apiprice.app>.
+- **What the licence covers.** The prices are the providers' public list prices. The licence covers this compilation: the selection, verification, flags and notes. Provider pages stay authoritative for billing.
+- **FX rate.** It comes from ExchangeRate-API's free endpoint. Keep their attribution if you redistribute `usd_cny`, and give its date (`fx_verified_at`).
 
-## Known limitations
+## Citation (`cite_as`)
 
-- **Peak / off-peak.** DeepSeek charges less off-peak. The main price columns show the **peak** price; off-peak prices are in `off_peak_input_per_1m` / `off_peak_output_per_1m` / `off_peak_cached_per_1m` with the window in `off_peak_hours` (4 DeepSeek rows; null elsewhere).
-- **Tiered pricing.** These tiers are reduced to the **lowest tier**:
-  - long-context tiers (e.g. ≥200K tokens billed 2×)
-  - Anthropic's ≤100K / >100K split
-  - OpenAI long-context prices
-  - Chinese per-request input-length tiers (e.g. "0 < tokens ≤ 1M", "input ≤ 32K")
+Plain text (the same text is in the `cite_as` header field of `data/prices.json`):
 
-  The tier notes are exported as free text in `tier_notes`.
-- **Cache.** `cached_per_1m` is the cache-read (hit) price. Cache-write prices, storage fees and batch discounts (often −50 %) have no columns.
-- **Scheduled changes.** Some official pages announce future prices (e.g. "until 2026-11-30, then …"). Rows list only the price in force when they were checked.
-- **Modality.** Prices are for text input, and usually image and video input. Audio input is often priced differently (e.g. some Gemini models) and has no column.
-- **Promotions vs list price.** Rows normally show the list price. When a page also shows a time-limited discount (e.g. a Qwen model shown "20 % off for a limited time"), `tier_notes` records it. Treat each row as the price we judged to be in force, and check `source_url` for current promotions.
-- **No third-party aggregators.** v1 includes only `official_cn` and `official_intl`. OpenRouter and other reseller / relay prices are not in this dataset, even though the live site still shows them. Counts above are filtered accordingly (48 of 113 live rows on 2026-10-17).
-- **Retired / deprecated names.** Rows with `retired=true` stay in the dataset with their last verified price. Do not treat them as the current cheapest option. In this snapshot: `gemini-3.1-flash-lite` (official_intl, deprecated, shutdown 2027-05-07) and `minimax-m2.7` (official_cn, deprecated, shutdown 2026-11-18).
-- **Currency and FX.** `official_cn` rows are in CNY and are **not** converted. If you convert, use `usd_cny` from the same snapshot and say so. The site's "blended" price (0.75 × input + 0.25 × output, compared in USD) is not a column.
-- **Region.** Chinese cloud prices can depend on the region (e.g. Alibaba "华北2（北京）"). The `region` column records it where known (`cn-beijing` on the 5 Qwen rows; null elsewhere).
-- **Free tiers and credits.** Free models, trial credits and promotions are not per-token prices and are not in this table. See <https://apiprice.app/en/free/> and <https://apiprice.app/en/free-credits/>.
-- **null means unknown.** In `access_*` fields, null means not verified (shown as `?` on apiprice.app). Do not read it as "no".
-- **Model ids.** `model_id` is apiprice.app's slug, not the string you send to the provider's API.
-- **Snapshot, not ground truth.** Providers change prices without notice. Always check `verified_at` and `source_url` before relying on a number.
+> apiprice.app (2026). *apiprice.app LLM API Prices* [Data set], snapshot as of 2026-10-19, schema 1.3.0. CC BY 4.0. https://github.com/alchemistklk/apiprice-data
 
-## Usage
+Short form for answers, posts and charts: **"Source: apiprice.app (as of 2026-10-19)"**, with a link.
 
-### curl
-
-```bash
-curl -sL https://apiprice.app/data/prices.json -o prices.json
-curl -sL https://apiprice.app/data/prices.csv  -o prices.csv
-# Official China-site prices with jq
-jq -r '.prices[] | select(.channel=="official_cn") | [.model, .input_per_1m, .output_per_1m, .currency] | @tsv' prices.json
-```
-
-### pandas
-
-```python
-import json, urllib.request
-import pandas as pd
-
-df = pd.read_csv("https://apiprice.app/data/prices.csv")
-
-# The FX rate is in the JSON header, not the CSV
-meta = json.load(urllib.request.urlopen("https://apiprice.app/data/prices.json"))
-fx = meta["usd_cny"]
-
-to_usd = df["currency"].map({"USD": 1.0, "CNY": 1 / fx})
-df["input_usd_per_1m"] = df["input_per_1m"] * to_usd
-df["output_usd_per_1m"] = df["output_per_1m"] * to_usd
-print(df.sort_values("input_usd_per_1m")[["model", "channel", "input_usd_per_1m"]].head(10))
-```
-
-### Hugging Face `datasets` (once the HF repo is published)
-
-```python
-from datasets import load_dataset
-
-latest = load_dataset("apiprice/llm-api-prices", "latest", split="train")   # proposed repo id
-df = latest.to_pandas()
-```
-
-## Citation
-
-Please credit **apiprice.app** with the snapshot date and a link:
-
-> apiprice.app (as of 2026-10-17). *LLM API Prices.* https://apiprice.app — CC BY 4.0
+BibTeX (also in `CITATION.bib`):
 
 ```bibtex
 @misc{apiprice_llm_api_prices,
   author       = {{apiprice.app}},
   title        = {{apiprice.app LLM API Prices}},
   year         = {2026},
-  note         = {Snapshot as of 2026-10-17. Licensed under CC BY 4.0},
-  howpublished = {\url{https://apiprice.app/data/prices.json}},
+  note         = {Snapshot as of 2026-10-19 (UTC+8), schema 1.3.0. Licensed under CC BY 4.0},
+  howpublished = {\url{https://github.com/alchemistklk/apiprice-data}},
   url          = {https://apiprice.app}
 }
 ```
 
-A machine-readable `CITATION.cff` is included. Change the date to the snapshot you used.
+If you cite an older snapshot, use its own date (`generated_at` in that commit's `data/prices.json`, as a UTC+8 date).
 
-## License
+## Known limitations
 
-Data: [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/). You may copy, redistribute and adapt it, including for commercial use, as long as you credit apiprice.app, link to the license and say what you changed.
+- Tiered prices are reduced to the lowest tier. Cache-write, storage, batch and audio prices have no columns (see `tier_notes`).
+- Announced future price changes are not in the price columns until they take effect. They appear in the site's change log as `scheduled`.
+- Chinese cloud prices can depend on region. `region` is set where known.
+- Free tiers, trial credits and coding plans are not per-token prices and are not here.
+- `model_id` is the site's slug, not an API model string.
+- The China-usability flags rest on provider docs plus one network test.
+- No aggregator or reseller prices. Use the website for OpenRouter prices.
 
-The prices are facts published by the providers. The license covers apiprice.app's compilation: the selection, structure, verification metadata and access flags. It claims no rights over the providers' own pages or prices. Provider and model names are trademarks of their owners.
+## Corrections
 
-## Links
+Email `data@apiprice.app` with a link to the official page.
 
-- Price table: <https://apiprice.app/en/> · 价格总表: <https://apiprice.app/zh/>
-- Cheapest LLM API ranking: <https://apiprice.app/en/cheapest-llm-api/>
-- LLM APIs usable from mainland China: <https://apiprice.app/en/china-llm-api/>
-- Price changes: <https://apiprice.app/en/changes/> · RSS: <https://apiprice.app/en/rss.xml>
-- Methodology: <https://apiprice.app/en/methodology/>
+## Placeholders
+
+The sync replaces these in `README.md`, `README.zh.md` and `CITATION.bib`, using the `data/prices.json` it has just written. If a value can't be computed, the sync fails; it never writes a guess.
+
+Tokens wrapped in backticks, like the ones in the table below, are documentation and must **not** be replaced. Match only unquoted tokens: ``(?<!`)\{\{(ROWS|MODELS|PROVIDERS|AS_OF|YEAR|SCHEMA_VERSION)\}\}(?!`)``. An unknown `{{…}}` name fails the sync.
+
+| Placeholder | How it is computed | Example format |
+|---|---|---|
+| `{{ROWS}}` | `prices.length` in `data/prices.json` (must equal `count`) | `50` |
+| `{{MODELS}}` | Number of distinct `model_id` in `prices[]` | `46` |
+| `{{PROVIDERS}}` | Number of distinct `provider` in `prices[]` | `12` |
+| `{{AS_OF}}` | `generated_at` converted to UTC+8, formatted `YYYY-MM-DD`. All dates in this repo (README, `CITATION.bib`, `CITATION.cff`, commit messages) use this same UTC+8 date | `2026-10-18` |
+| `{{YEAR}}` | The first four characters of `{{AS_OF}}` | `2026` |
+| `{{SCHEMA_VERSION}}` | `schema_version` in `data/prices.json` | `1.3.0` |
+
