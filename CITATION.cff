@@ -15,8 +15,8 @@ authors:
   - name: "apiprice.app"
     website: "https://apiprice.app"
     email: "data@apiprice.app"
-version: "2026-10-18"
-date-released: "2026-10-18"
+version: "2026-10-19"
+date-released: "2026-10-19"
 license: CC-BY-4.0
 url: "https://apiprice.app"
 repository-code: "https://github.com/alchemistklk/apiprice-data"
