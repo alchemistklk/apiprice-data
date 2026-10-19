@@ -1,0 +1,26 @@
+% CITATION.bib for alchemistklk/apiprice-data, rendered by scripts/sync.mjs from templates/CITATION.bib (Beacon, 2026-10-18 UTC+8).
+% Placeholders (double-brace tokens, see README "Placeholders"): AS_OF = generated_at as a UTC+8 date (YYYY-MM-DD),
+% YEAR = first 4 chars of AS_OF, SCHEMA_VERSION = schema_version, ROWS = prices.length, all from data/prices.json.
+% The sync fails rather than guessing. The year/date lines have three braces on purpose: after replacement they read {2026}.
+% If you cite an older snapshot, use the generated_at date (as UTC+8) of the commit you used.
+
+% Classic BibTeX (works everywhere)
+@misc{apiprice_llm_api_prices,
+  author       = {{apiprice.app}},
+  title        = {{apiprice.app LLM API Prices}},
+  year         = {{{YEAR}}},
+  note         = {Snapshot as of {{AS_OF}} (UTC+8), schema {{SCHEMA_VERSION}}, {{ROWS}} rows. Licensed under CC BY 4.0},
+  howpublished = {\url{https://github.com/alchemistklk/apiprice-data}},
+  url          = {https://apiprice.app}
+}
+
+% biblatex (@dataset entry type)
+@dataset{apiprice_llm_api_prices_biblatex,
+  author    = {{apiprice.app}},
+  title     = {apiprice.app LLM API Prices},
+  date      = {{{AS_OF}}},
+  version   = {{{AS_OF}}},
+  url       = {https://github.com/alchemistklk/apiprice-data},
+  urldate   = {{{AS_OF}}},
+  note      = {CC BY 4.0. Schema {{SCHEMA_VERSION}}; {{ROWS}} rows. Website: https://apiprice.app}
+}

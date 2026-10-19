@@ -6,7 +6,7 @@
 fields; 1.3.0: the same 37 plus, appended, `provider_country`,
 `provider_country_source_url`, `provider_country_basis`,
 `provider_country_verified_at`, `pending_recheck`, `pending_recheck_reasons`,
-`last_verified_date_utc8`, and the `recheck_days` header; OpenRouter-only
+`last_verified_date_utc8`, and the `recheck_days` and `cite_as` headers; OpenRouter-only
 `or_*` (including `or_discount*`), `quantized_min_*`, `licensed_cloud_*` are
 dropped), and rewrites `data/prices.json`, `data/prices.csv` and the
 `version` / `date-released` lines of `CITATION.cff`. All dates written are

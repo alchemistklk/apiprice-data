@@ -49,6 +49,8 @@ export function placeholderValues(out) {
   if (!out.schema_version) throw new Error('placeholders: no schema_version');
   return { ROWS: String(rows.length), MODELS: String(new Set(rows.map((r) => r.model_id)).size), PROVIDERS: String(new Set(rows.map((r) => r.provider)).size), AS_OF: asOf, YEAR: asOf.slice(0, 4), SCHEMA_VERSION: out.schema_version };
 }
+// Header cite_as (1.3.0): the README's plain-text citation, with the snapshot's UTC+8 date.
+export const citeAs = (asOf, schemaVersion) => `apiprice.app (${asOf.slice(0, 4)}). apiprice.app LLM API Prices [Data set], snapshot as of ${asOf}, schema ${schemaVersion}. CC BY 4.0. https://github.com/alchemistklk/apiprice-data`;
 export function renderPlaceholders(text, vals) {
   const unknown = [...text.matchAll(/(?<!`)\{\{([A-Za-z_]+)\}\}(?!`)/g)].map((m) => m[1]).filter((k) => !PLACEHOLDERS.includes(k));
   if (unknown.length) throw new Error('placeholders: unknown ' + [...new Set(unknown)].map((k) => `{{${k}}}`).join(', '));
@@ -110,11 +112,12 @@ const out = {
   unit: live.unit,
   generated_at: live.generated_at,
   count: rows.length,
-  ...(FIELDS_V === FIELDS_130 ? { recheck_days: live.recheck_days } : {}),
+  ...(FIELDS_V === FIELDS_130 ? { recheck_days: live.recheck_days, cite_as: dateUtc8(live.generated_at) ? citeAs(dateUtc8(live.generated_at), live.schema_version) : null } : {}),
   notes: Object.fromEntries(Object.entries(live.notes || {}).filter(([k]) => k !== 'openrouter' && k !== 'or_discount')),
   prices: rows,
 };
 if (FIELDS_V === FIELDS_130 && !(Number.isInteger(out.recheck_days) && out.recheck_days > 0)) die('1.3.0 export without recheck_days');
+if (FIELDS_V === FIELDS_130 && !out.cite_as) die('cannot build cite_as (generated_at not a date)');
 const esc = (v) => (v == null ? '' : /[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
 const csv = [FIELDS_V.join(','), ...rows.map((r) => FIELDS_V.map((c) => esc(Array.isArray(r[c]) ? r[c].join(';') : r[c])).join(','))].join('\n') + '\n';
 const json = JSON.stringify(out, null, 1) + '\n';

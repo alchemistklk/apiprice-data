@@ -63,6 +63,10 @@
       "minimum": 1,
       "description": "(1.3.0) Days after verified_at at which a row is flagged pending_recheck (14)."
     },
+    "cite_as": {
+      "type": "string",
+      "description": "(1.3.0) Plain-text citation of this snapshot: \"apiprice.app (YYYY). apiprice.app LLM API Prices [Data set], snapshot as of YYYY-MM-DD, schema X. CC BY 4.0. https://github.com/alchemistklk/apiprice-data\" (UTC+8 date of generated_at)."
+    },
     "notes": {
       "type": "object"
     },
